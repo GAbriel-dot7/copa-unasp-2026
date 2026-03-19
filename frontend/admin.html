@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Copa UNASP 2026 — Admin</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ── Header ───────────────────────────────────────────────── -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-logo">Copa<br>UNASP</div>
+    <div class="header-sub">
+      <h2>Painel Administrativo — 2026</h2>
+      <p>Registro de compras e controle do leilão</p>
+    </div>
+    <nav class="header-nav">
+      <a href="/admin" class="ativo">⚙️ Admin</a>
+      <a href="/telao" target="_blank">📺 Telão</a>
+    </nav>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+      <div class="header-badge">🔴 Ao vivo</div>
+      <div class="conn-indicator">
+        <div class="conn-dot"></div>
+        <span class="conn-label">Conectado</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ── Stats Bar ─────────────────────────────────────────────── -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <span class="stat-valor" id="stat-total-gastos">— cr</span>
+      <span class="stat-label">Total Gasto</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-valor" id="stat-total-jogadores">—</span>
+      <span class="stat-label">Jogadores Comprados</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-valor" id="stat-media-saldo">— cr</span>
+      <span class="stat-label">Média de Saldo</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-valor" id="stat-lider">—</span>
+      <span class="stat-label">Mais Rico</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── Main ──────────────────────────────────────────────────── -->
+<main class="main">
+
+  <!-- Formulário de Compra -->
+  <section class="form-section" id="form-section">
+    <h2 class="secao-titulo">🏷️ Registrar Compra</h2>
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label for="sel-craque">Craque</label>
+        <select id="sel-craque" onchange="onChangeCraque()">
+          <option value="">— Escolha o craque —</option>
+        </select>
+        <div id="craque-info"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="inp-jogador">Nome do Jogador</label>
+        <input type="text" id="inp-jogador" placeholder="Ex: Vinicius Jr." autocomplete="off" />
+      </div>
+
+      <div class="form-group">
+        <label>Posição</label>
+        <div class="posicao-btns">
+          <button type="button" class="btn-pos" data-p="Goleiro" onclick="selPos('Goleiro')">🧤 Goleiro</button>
+          <button type="button" class="btn-pos" data-p="Fixo"    onclick="selPos('Fixo')">🧱 Fixo</button>
+          <button type="button" class="btn-pos" data-p="Ala"     onclick="selPos('Ala')">⚡ Ala</button>
+          <button type="button" class="btn-pos" data-p="Pivô"    onclick="selPos('Pivô')">🎯 Pivô</button>
+        </div>
+        <input type="hidden" id="inp-posicao" value="" />
+      </div>
+
+      <div class="form-group">
+        <label for="inp-valor">Valor (créditos)</label>
+        <input type="number" id="inp-valor" placeholder="Ex: 15000" min="1" step="500" />
+      </div>
+    </div>
+
+    <div id="form-erro" class="form-erro"></div>
+
+    <div class="form-footer">
+      <button id="btn-registrar" class="btn-registrar" onclick="registrarCompra()">
+        ⚽ REGISTRAR COMPRA
+      </button>
+    </div>
+  </section>
+
+  <!-- Grid de Craques -->
+  <h2 class="secao-titulo">🏆 Craques &amp; Seleções</h2>
+  <div class="grid-craques" id="grid-craques"></div>
+
+  <!-- Gráfico -->
+  <section class="chart-section">
+    <h2 class="secao-titulo">📊 Saldos Comparativos</h2>
+    <div class="chart-wrapper">
+      <canvas id="chart-saldos"></canvas>
+    </div>
+  </section>
+
+  <!-- Histórico -->
+  <section class="historico-section">
+    <div class="historico-header">
+      <h2 class="secao-titulo" style="margin-bottom:0">📋 Histórico de Compras</h2>
+      <div class="historico-filtro">
+        <select id="filtro-hist" onchange="renderHistorico(this.value)">
+          <option value="todos">Todos os craques</option>
+        </select>
+      </div>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Craque</th><th>Seleção</th><th>Jogador</th>
+            <th>Posição</th><th>Valor</th><th>Hora</th>
+          </tr>
+        </thead>
+        <tbody id="historico-tbody">
+          <tr><td colspan="6" class="vazio">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Botão Relatório -->
+  <div style="text-align:center;margin-bottom:48px">
+    <button class="btn-relatorio" onclick="abrirRelatorio()">
+      📄 Gerar Relatório Final do Leilão
+    </button>
+  </div>
+
+</main>
+
+<!-- Modal Relatório -->
+<div id="modal-relatorio" class="modal-overlay" onclick="fecharModalFora(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 class="modal-titulo">📄 Relatório Final — Copa UNASP 2026</h2>
+      <button class="modal-fechar" onclick="fecharRelatorio()">✕</button>
+    </div>
+    <div class="modal-acoes">
+      <button class="btn-copiar" onclick="copiarRelatorio()">📋 Copiar Texto</button>
+      <span id="copiado-msg" class="copiado-msg">✅ Copiado!</span>
+    </div>
+    <pre id="relatorio-texto" class="relatorio-pre"></pre>
+  </div>
+</div>
+
+<!-- Reset oculto (para testes) -->
+<div id="btn-reset-wrapper" style="text-align:center;padding:0 0 24px;display:none">
+  <button onclick="resetarSistema()" style="background:rgba(232,0,61,0.1);border:1px solid rgba(232,0,61,0.3);color:#ff6b8a;padding:8px 20px;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer">
+    ⚠️ RESETAR SISTEMA (Apaga tudo)
+  </button>
+</div>
+
+<footer>
+  <span>⚽ Copa UNASP 2026</span> — Painel Administrativo ·
+  Atualização automática a cada 2s
+</footer>
+
+<div id="toast-container"></div>
+
+<script src="js/main.js"></script>
+<script>
+// ════════════════════════════════════════════════
+//  ADMIN — Lógica específica
+// ════════════════════════════════════════════════
+
+let craqueAtivo = null;   // id do craque selecionado no form
+
+// ── Carregar dados via API ────────────────────────────────────
+async function carregarDados() {
+  try {
+    const [resCraques, resCompras] = await Promise.all([
+      fetch("/api/craques"),
+      fetch("/api/compras"),
+    ]);
+
+    if (!resCraques.ok || !resCompras.ok) throw new Error("Erro na resposta");
+
+    estado.craques         = await resCraques.json();
+    estado.historicoGlobal = await resCompras.json();
+
+    renderCartoes(craqueAtivo, "selecionarCard");
+    renderHistorico(document.getElementById("filtro-hist").value);
+    renderStats();
+    renderChart();
+    popularSelects();
+    atualizarInfoCraque();
+    setConn(true);
+  } catch (err) {
+    setConn(false);
+  }
+}
+
+// ── Selects ───────────────────────────────────────────────────
+function popularSelects() {
+  const sel  = document.getElementById("sel-craque");
+  const filt = document.getElementById("filtro-hist");
+  const prev = sel.value;
+
+  sel.innerHTML = `<option value="">— Escolha o craque —</option>` +
+    estado.craques.map(c =>
+      `<option value="${c.id}">${c.bandeira} ${c.nome} (${c.selecao})</option>`
+    ).join("");
+  sel.value = prev;
+
+  filt.innerHTML = `<option value="todos">Todos os craques</option>` +
+    estado.craques.map(c =>
+      `<option value="${c.nome}">${c.bandeira} ${c.nome}</option>`
+    ).join("");
+}
+
+// ── Seleção de craque via cartão ──────────────────────────────
+function selecionarCard(id) {
+  craqueAtivo = id;
+  document.getElementById("sel-craque").value = id;
+  atualizarInfoCraque();
+  document.getElementById("form-section").scrollIntoView({ behavior: "smooth", block: "center" });
+  renderCartoes(craqueAtivo, "selecionarCard");
+}
+
+function onChangeCraque() {
+  craqueAtivo = parseInt(document.getElementById("sel-craque").value) || null;
+  atualizarInfoCraque();
+  renderCartoes(craqueAtivo, "selecionarCard");
+}
+
+function atualizarInfoCraque() {
+  const info = document.getElementById("craque-info");
+  if (!craqueAtivo || !estado.craques.length) { info.style.display = "none"; return; }
+  const cr = estado.craques.find(c => c.id === craqueAtivo);
+  if (!cr) { info.style.display = "none"; return; }
+  info.innerHTML = `${cr.bandeira} <strong>${cr.nome}</strong> — Saldo: <strong style="color:${corSaldo(cr.saldo)}">${fmt(cr.saldo)}</strong>`;
+  info.style.display = "block";
+}
+
+// ── Seleção de posição ────────────────────────────────────────
+function selPos(p) {
+  document.getElementById("inp-posicao").value = p;
+  document.querySelectorAll(".btn-pos").forEach(b => b.classList.toggle("ativo", b.dataset.p === p));
+}
+
+// ── Registrar compra ──────────────────────────────────────────
+async function registrarCompra() {
+  const erroEl  = document.getElementById("form-erro");
+  const btnEl   = document.getElementById("btn-registrar");
+  const craqueId = parseInt(document.getElementById("sel-craque").value);
+  const jogador  = document.getElementById("inp-jogador").value.trim();
+  const posicao  = document.getElementById("inp-posicao").value;
+  const valor    = parseInt(document.getElementById("inp-valor").value);
+
+  erroEl.style.display = "none";
+
+  // Validação frontend (apenas campos)
+  if (!craqueId) { mostrarErro("Selecione um craque."); return; }
+  if (!jogador)  { mostrarErro("Informe o nome do jogador."); return; }
+  if (!posicao)  { mostrarErro("Selecione a posição do jogador."); return; }
+  if (!valor || valor <= 0) { mostrarErro("Informe um valor válido."); return; }
+
+  btnEl.disabled   = true;
+  btnEl.textContent = "⏳ Registrando...";
+
+  try {
+    const res = await fetch("/api/compras", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ craque_id: craqueId, jogador, posicao, valor }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      mostrarErro(data.erro || "Erro ao registrar compra.");
+      return;
+    }
+
+    // Limpar form
+    document.getElementById("inp-jogador").value = "";
+    document.getElementById("inp-valor").value   = "";
+    document.getElementById("inp-posicao").value = "";
+    document.querySelectorAll(".btn-pos").forEach(b => b.classList.remove("ativo"));
+
+    toast(`✅ ${jogador} (${posicao}) registrado com sucesso!`, "ok");
+    await carregarDados();
+
+  } catch (err) {
+    mostrarErro("Falha na conexão com o servidor.");
+    setConn(false);
+  } finally {
+    btnEl.disabled    = false;
+    btnEl.textContent = "⚽ REGISTRAR COMPRA";
+  }
+}
+
+function mostrarErro(msg) {
+  const el = document.getElementById("form-erro");
+  el.textContent    = "⚠️ " + msg;
+  el.style.display  = "block";
+  toast("⚠️ " + msg, "erro");
+}
+
+// ── Reset (testes) ────────────────────────────────────────────
+async function resetarSistema() {
+  if (!confirm("⚠️ Isso irá apagar TODAS as compras e redefinir os saldos. Confirma?")) return;
+  await fetch("/api/reset", { method: "POST" });
+  toast("🔄 Sistema resetado!", "ok");
+  await carregarDados();
+}
+
+// Ativar botão reset com Shift+R+Alt
+document.addEventListener("keydown", e => {
+  if (e.shiftKey && e.altKey && e.key === "R") {
+    document.getElementById("btn-reset-wrapper").style.display = "block";
+  }
+});
+
+// ── Init ──────────────────────────────────────────────────────
+carregarDados();
+setInterval(carregarDados, 2000);
+</script>
+
+</body>
+</html>

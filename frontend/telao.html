@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Copa UNASP 2026 — Telão</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/telao.css" />
+</head>
+<body class="telao-body">
+
+<!-- ── Header Telão ──────────────────────────────────────────── -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-logo">Copa<br>UNASP</div>
+    <div class="header-sub">
+      <h2>Leilão ao Vivo — 2026</h2>
+      <p>Placar em tempo real · Atualização automática</p>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+      <div class="header-badge">📺 Telão</div>
+      <div class="conn-indicator">
+        <div class="conn-dot"></div>
+        <span class="conn-label" style="font-size:11px;color:rgba(255,255,255,0.5)">Sincronizado</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ── Stats Bar ─────────────────────────────────────────────── -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <span class="stat-valor" id="stat-total-gastos">— cr</span>
+      <span class="stat-label">Total Movimentado</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-valor" id="stat-total-jogadores">—</span>
+      <span class="stat-label">Jogadores Leiloados</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-valor" id="stat-media-saldo">— cr</span>
+      <span class="stat-label">Média de Saldo</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-valor" id="stat-lider">—</span>
+      <span class="stat-label">Líder do Leilão</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── Última compra (destaque) ──────────────────────────────── -->
+<div class="ultima-compra-wrapper">
+  <div id="ultima-compra" class="ultima-compra hidden">
+    <span class="ultima-label">🔔 Última compra</span>
+    <span id="uc-texto" class="uc-texto"></span>
+  </div>
+</div>
+
+<!-- ── Main ──────────────────────────────────────────────────── -->
+<main class="main">
+
+  <!-- Ranking lateral + Grid -->
+  <div class="telao-layout">
+
+    <!-- Ranking -->
+    <aside class="ranking-aside">
+      <h2 class="secao-titulo" style="font-size:22px">🏆 Ranking</h2>
+      <div id="ranking-lista" class="ranking-lista"></div>
+    </aside>
+
+    <!-- Grid principal -->
+    <div class="telao-content">
+      <h2 class="secao-titulo">⚽ Elencos</h2>
+      <div class="grid-craques" id="grid-craques"></div>
+    </div>
+  </div>
+
+  <!-- Últimas compras (feed) -->
+  <section class="feed-section">
+    <h2 class="secao-titulo">📋 Últimas Compras</h2>
+    <div id="feed-compras" class="feed-lista"></div>
+  </section>
+
+</main>
+
+<footer>
+  <span>⚽ Copa UNASP 2026</span> — Atualização automática a cada 2 segundos
+</footer>
+
+<div id="toast-container"></div>
+
+<script src="js/main.js"></script>
+<script>
+// ════════════════════════════════════════════════
+//  TELÃO — Lógica específica (somente leitura)
+// ════════════════════════════════════════════════
+
+let ultimaCompraId = null;
+
+// ── Carregar dados ────────────────────────────────────────────
+async function carregarDados() {
+  try {
+    const [resCraques, resCompras] = await Promise.all([
+      fetch("/api/craques"),
+      fetch("/api/compras"),
+    ]);
+    if (!resCraques.ok || !resCompras.ok) throw new Error();
+
+    const craquesPrev  = estado.craques.map(c => c.saldo);
+    estado.craques         = await resCraques.json();
+    estado.historicoGlobal = await resCompras.json();
+
+    // Detectar nova compra
+    const novaCompra = estado.historicoGlobal[0];
+    if (novaCompra && novaCompra.id !== ultimaCompraId) {
+      if (ultimaCompraId !== null) exibirUltimaCompra(novaCompra);
+      ultimaCompraId = novaCompra.id;
+    }
+
+    renderCartoes();
+    renderRanking();
+    renderFeed();
+    renderStats();
+    setConn(true);
+
+  } catch {
+    setConn(false);
+  }
+}
+
+// ── Ranking lateral ───────────────────────────────────────────
+function renderRanking() {
+  const lista = document.getElementById("ranking-lista");
+  if (!lista) return;
+
+  const ord = [...estado.craques].sort((a, b) => b.saldo - a.saldo);
+  const medalhas = ["🥇","🥈","🥉"];
+
+  lista.innerHTML = ord.map((cr, i) => {
+    const cor   = corSaldo(cr.saldo);
+    const p     = pct(cr.saldo);
+    const nJog  = estado.historicoGlobal.filter(h => h.craque_id === cr.id).length;
+    return `
+      <div class="ranking-item" style="--cor-sel:${cr.cor}">
+        <span class="rank-pos">${medalhas[i] || (i+1)+"º"}</span>
+        <span class="rank-flag">${cr.bandeira}</span>
+        <div class="rank-info">
+          <span class="rank-nome">${cr.nome}</span>
+          <div class="rank-barra">
+            <div class="rank-fill" style="width:${Math.max(0,p)}%;background:${cor}"></div>
+          </div>
+        </div>
+        <div class="rank-right">
+          <span class="rank-saldo" style="color:${cor}">${fmt(cr.saldo)}</span>
+          <span class="rank-njog">${nJog} jog.</span>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+// ── Feed de compras ───────────────────────────────────────────
+function renderFeed() {
+  const feed = document.getElementById("feed-compras");
+  if (!feed) return;
+
+  const ultimas = estado.historicoGlobal.slice(0, 10);
+  if (!ultimas.length) {
+    feed.innerHTML = `<div class="feed-vazio">Nenhuma compra ainda — aguardando o leilão começar!</div>`;
+    return;
+  }
+
+  feed.innerHTML = ultimas.map((h, i) => `
+    <div class="feed-item${i === 0 ? " feed-novo" : ""}">
+      <span class="feed-flag">${h.bandeira}</span>
+      <div class="feed-info">
+        <span class="feed-craque">${h.craque}</span>
+        <span class="feed-jog">${posIcon(h.posicao)} <strong>${h.jogador}</strong>
+          <span class="badge-pos ${posClass(h.posicao)}" style="font-size:9px">${h.posicao||""}</span>
+        </span>
+      </div>
+      <div class="feed-right">
+        <span class="feed-valor">${fmt(h.valor)}</span>
+        <span class="feed-hora">${horaStr(h.timestamp)}</span>
+      </div>
+    </div>`).join("");
+}
+
+// ── Banner última compra ──────────────────────────────────────
+function exibirUltimaCompra(compra) {
+  const banner = document.getElementById("ultima-compra");
+  const texto  = document.getElementById("uc-texto");
+  const cr     = estado.craques.find(c => c.id === compra.craque_id);
+  const flag   = cr ? cr.bandeira : "⚽";
+
+  texto.innerHTML = `${flag} <strong>${compra.craque}</strong> comprou <strong>${compra.jogador}</strong> (${compra.posicao}) por <strong>${fmt(compra.valor)}</strong>`;
+  banner.classList.remove("hidden", "saindo");
+  banner.classList.add("entrando");
+
+  toast(`🔔 ${compra.craque} comprou ${compra.jogador} — ${fmt(compra.valor)}`, "ok");
+
+  setTimeout(() => {
+    banner.classList.remove("entrando");
+    banner.classList.add("saindo");
+    setTimeout(() => banner.classList.add("hidden"), 700);
+  }, 5000);
+}
+
+// ── Init ──────────────────────────────────────────────────────
+carregarDados();
+setInterval(carregarDados, 2000);
+</script>
+
+</body>
+</html>
