@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Copa UNASP 2026 — Admin</title>
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#0033A0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Admin Leilão" />
+  <link rel="apple-touch-icon" href="/img/icons/icon-192.png" />
+  <meta name="theme-color" content="#0033A0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Leilão UNASP" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="/img/icons/icon-192.png" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* ── Login ─────────────────────────────────────── */
+.login-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% -10%, rgba(0,51,160,0.35) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 50% at 100% 100%, rgba(107,31,168,0.3) 0%, transparent 60%),
+    #06091A;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px;
+}
+.login-overlay.oculto { display: none; }
+.login-box {
+  background: linear-gradient(165deg, rgba(255,255,255,0.05), rgba(13,18,48,0.96));
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 20px; padding: 48px 56px;
+  text-align: center; width: 100%; max-width: 420px;
+  box-shadow: 0 36px 90px rgba(0,0,0,0.78), inset 0 0 24px rgba(255,255,255,0.03);
+  backdrop-filter: blur(10px);
+}
+.login-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 52px; line-height: 1; letter-spacing: 2px;
+  background: linear-gradient(135deg, #FFD100, #FFF8DC, #FFD100);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  margin-bottom: 16px;
+}
+.login-titulo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px; font-weight: 900; letter-spacing: 3px;
+  text-transform: uppercase; color: white; margin-bottom: 6px;
+}
+.login-sub { font-size: 13px; color: #8896C4; margin-bottom: 28px; }
+.login-form { display: flex; flex-direction: column; gap: 12px; }
+.login-input {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 10px; padding: 13px 16px;
+  color: white; font-size: 16px; text-align: center;
+  outline: none; letter-spacing: 4px;
+  font-family: 'Barlow', sans-serif;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+.login-input:focus { border-color: #FFD100; box-shadow: 0 0 0 3px rgba(255,209,0,0.16); background: rgba(255,209,0,0.05); }
+.login-btn {
+  background: linear-gradient(135deg, #E8003D, #B5002E);
+  color: white; border: none; border-radius: 10px;
+  padding: 13px; font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px; letter-spacing: 2px; cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 10px 24px rgba(232,0,61,0.26);
+}
+.login-btn:hover { transform: translateY(-2px) scale(1.01); box-shadow: 0 12px 30px rgba(232,0,61,0.5); }
+.login-erro {
+  color: #ff6b8a; font-size: 13px; font-weight: 600;
+  margin-top: 10px; min-height: 18px;
+}
+/* ── Finalizar / Reabrir leilão ─────────────────── */
+.btn-iniciar {
+  background: linear-gradient(135deg, #0B8A62, #06694B);
+  color: white; border: none; border-radius: 14px;
+  padding: 16px 44px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px; letter-spacing: 3px; cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 10px 28px rgba(6,105,75,0.36);
+  position: relative;
+  overflow: hidden;
+}
+.btn-iniciar::after {
+  content: '';
+  position: absolute;
+  top: -120%; left: -34%;
+  width: 34%; height: 280%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  transform: rotate(16deg);
+  transition: transform 0.45s ease;
+}
+.btn-iniciar:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 14px 38px rgba(6,105,75,0.52); }
+.btn-iniciar:hover::after { transform: rotate(16deg) translateX(290%); }
+.btn-finalizar {
+  background: linear-gradient(135deg, #FF6B00, #CC4400);
+  color: white; border: none; border-radius: 14px;
+  padding: 16px 44px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px; letter-spacing: 3px; cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 10px 28px rgba(255,107,0,0.36);
+  position: relative;
+  overflow: hidden;
+}
+.btn-finalizar::after {
+  content: '';
+  position: absolute;
+  top: -120%; left: -34%;
+  width: 34%; height: 280%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  transform: rotate(16deg);
+  transition: transform 0.45s ease;
+}
+.btn-finalizar:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 14px 38px rgba(255,107,0,0.6); }
+.btn-finalizar:hover::after { transform: rotate(16deg) translateX(290%); }
+.btn-reabrir {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px; padding: 10px 28px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px; font-weight: 700; letter-spacing: 1px; cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-reabrir:hover { background: rgba(255,255,255,0.14); color: white; box-shadow: 0 8px 22px rgba(0,0,0,0.32); }
+.btn-noticias {
+  background: linear-gradient(135deg, #0B8A62, #06694B);
+  color: white; border: none; border-radius: 14px;
+  padding: 14px 38px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 21px; letter-spacing: 2.6px;
+  cursor: pointer; transition: all 0.28s;
+  box-shadow: 0 10px 28px rgba(6,105,75,0.36);
+  position: relative;
+  overflow: hidden;
+}
+.btn-noticias::after {
+  content: '';
+  position: absolute;
+  top: -120%; left: -34%;
+  width: 34%; height: 280%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+  transform: rotate(16deg);
+  transition: transform 0.45s ease;
+}
+.btn-noticias:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 14px 36px rgba(6,105,75,0.52); }
+.btn-noticias:hover::after { transform: rotate(16deg) translateX(290%); }
+
+.btn-mini-rel {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.16);
+  color: rgba(255,255,255,0.9);
+  border-radius: 8px;
+  padding: 6px 11px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-mini-rel:hover { background: rgba(255,255,255,0.14); color: white; }
+.btn-mini-rel.ativo {
+  background: rgba(255,209,0,0.18);
+  border-color: rgba(255,209,0,0.45);
+  color: var(--amarelo);
+  box-shadow: 0 0 0 1px rgba(255,209,0,0.2), 0 6px 18px rgba(0,0,0,0.26);
+}
+
+.tag-rel {
+  display: inline-block;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.05);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.8);
+}
+/* ── Desfazer compra ────────────────────────────── */
+.btn-desfazer {
+  background: rgba(232,0,61,0.1);
+  border: 1px solid rgba(232,0,61,0.25);
+  color: #ff6b8a; border-radius: 5px;
+  padding: 3px 8px; font-size: 11px; font-weight: 700;
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: 1px; cursor: pointer; transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn-desfazer:hover { background: rgba(232,0,61,0.22); border-color: rgba(232,0,61,0.5); color: white; }
+
+.assinatura-chic {
+  display: inline-block;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px;
+  letter-spacing: 3.2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.78);
+  text-shadow: 0 0 14px rgba(255,255,255,0.15);
+  opacity: 0.92;
+}
+
+.assinatura-chic.sutil {
+  font-size: 21px;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.56);
+  opacity: 0.9;
+}
+</style>
+</head>
+<body>
+
+<!-- ── Tela de Login ─────────────────────────────────────────── -->
+<div id="login-overlay" class="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">Copa<br>UNASP</div>
+    <h2 class="login-titulo">Painel Administrativo</h2>
+    <p class="login-sub">Digite a senha para continuar</p>
+    <div class="login-form">
+      <input type="password" id="login-senha" class="login-input" placeholder="Senha" onkeydown="if(event.key==='Enter') verificarSenha()" autofocus />
+      <button class="login-btn" onclick="verificarSenha()">Entrar</button>
+    </div>
+    <div id="login-erro" class="login-erro"></div>
+  </div>
+  <p style="margin-top:20px;text-align:center">
+    <span class="assinatura-chic">&middot; Desenvolvido por Robson &amp; Neo Lucca</span>
+  </p>
+</div>
+
+<!-- ── Header ───────────────────────────────────────────────── -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-logo">Copa<br>UNASP</div>
+    <div class="header-sub">
+      <h2>Painel Administrativo — 2026</h2>
+      <p>Registro de compras e controle do leilão</p>
+      <p style="margin-top:4px"><span class="assinatura-chic sutil">&middot; Desenvolvido por Robson &amp; Neo Lucca</span></p>
+    </div>
+    <nav class="header-nav">
+      <a href="/admin" class="ativo">⚙️ Admin</a>
+      <a href="/telao" target="_blank">📺 Telão</a>
+    </nav>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+      <div class="header-badge">🔴 Ao vivo</div>
+      <div class="conn-indicator">
+        <div class="conn-dot"></div>
+        <span class="conn-label">Conectado</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ── Stats Bar ─────────────────────────────────────────────── -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <span class="stat-valor" id="stat-total-gastos">— cr</span>
+      <span class="stat-label">Total Gasto</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-valor" id="stat-total-jogadores">—</span>
+      <span class="stat-label">Jogadores Comprados</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-valor" id="stat-media-saldo">— cr</span>
+      <span class="stat-label">Média de Saldo</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-valor" id="stat-lider">—</span>
+      <span class="stat-label">Mais Rico</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── Main ──────────────────────────────────────────────────── -->
+<main class="main">
+
+  <!-- Formulário de Compra -->
+  <section class="form-section" id="form-section">
+    <h2 class="secao-titulo">🏷️ Registrar Compra</h2>
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label for="sel-craque">Craque</label>
+        <select id="sel-craque" onchange="onChangeCraque()">
+          <option value="">— Escolha o craque —</option>
+        </select>
+        <div id="craque-info"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="inp-jogador">Nome do Jogador</label>
+        <input type="text" id="inp-jogador" placeholder="Ex: Vinicius Jr." autocomplete="off" />
+      </div>
+
+      <div class="form-group">
+        <label>Posição</label>
+        <div class="posicao-btns">
+          <button type="button" class="btn-pos" data-p="Goleiro" onclick="selPos('Goleiro')">🧤 Goleiro</button>
+          <button type="button" class="btn-pos" data-p="Fixo"    onclick="selPos('Fixo')">🧱 Fixo</button>
+          <button type="button" class="btn-pos" data-p="Ala"     onclick="selPos('Ala')">⚡ Ala</button>
+          <button type="button" class="btn-pos" data-p="Pivô"    onclick="selPos('Pivô')">🎯 Pivô</button>
+        </div>
+        <input type="hidden" id="inp-posicao" value="" />
+      </div>
+
+      <div class="form-group">
+        <label for="inp-valor">Valor (créditos)</label>
+        <input type="number" id="inp-valor" placeholder="Ex: 15000" min="1" step="500" />
+        <div class="valor-controls">
+          <button type="button" class="btn-inc" onclick="adicionarValor(1000)">+1k</button>
+          <button type="button" class="btn-inc" onclick="adicionarValor(5000)">+5k</button>
+          <button type="button" class="btn-inc" onclick="adicionarValor(10000)">+10k</button>
+          <button type="button" class="btn-inc" onclick="limparValor()">Limpar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="form-erro" class="form-erro"></div>
+
+    <div class="form-footer">
+      <button id="btn-registrar" class="btn-registrar" onclick="registrarCompra()">
+        ⚽ REGISTRAR COMPRA
+      </button>
+    </div>
+  </section>
+
+  <!-- Grid de Craques -->
+  <h2 class="secao-titulo">🏆 Craques &amp; Seleções</h2>
+  <div class="grid-craques" id="grid-craques"></div>
+
+  <!-- Gráfico -->
+  <section class="chart-section">
+    <h2 class="secao-titulo">📊 Saldos Comparativos</h2>
+    <div class="chart-wrapper">
+      <canvas id="chart-saldos"></canvas>
+    </div>
+  </section>
+
+  <!-- Histórico -->
+  <section class="historico-section">
+    <div class="historico-header">
+      <h2 class="secao-titulo" style="margin-bottom:0">📋 Histórico de Compras</h2>
+      <div class="historico-filtro">
+        <select id="filtro-hist" onchange="renderHistorico(this.value)">
+          <option value="todos">Todos os craques</option>
+        </select>
+      </div>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Craque</th><th>Seleção</th><th>Jogador</th>
+            <th>Posição</th><th>Valor</th><th>Hora</th><th></th><th></th>
+          </tr>
+        </thead>
+        <tbody id="historico-tbody">
+          <tr><td colspan="6" class="vazio">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Botão Relatório -->
+  <!-- Iniciar + Finalizar + Relatório -->
+  <div style="text-align:center;margin-bottom:48px;display:flex;flex-direction:column;align-items:center;gap:16px">
+    <div id="iniciar-wrap">
+      <button id="btn-iniciar" class="btn-iniciar" onclick="iniciarLeilao()">
+        ⚽ Iniciar Leilão
+      </button>
+    </div>
+    <div id="finalizar-wrap">
+      <button id="btn-finalizar" class="btn-finalizar" onclick="finalizarLeilao()">
+        🏁 Finalizar Leilão
+      </button>
+    </div>
+    <div id="reabrir-wrap" style="display:none">
+      <button class="btn-reabrir" onclick="reabrirLeilao()">
+        🔄 Reabrir Leilão
+      </button>
+    </div>
+    <button class="btn-relatorio" onclick="abrirRelatorio()">
+      📄 Gerar Relatório Final do Leilão
+    </button>
+    <button class="btn-noticias" onclick="abrirRelatoriosNoticia()">
+      📰 Relatórios Para Notícia
+    </button>
+    <span class="assinatura-chic sutil">&middot; Desenvolvido por Robson &amp; Neo Lucca</span>
+  </div>
+
+</main>
+
+<!-- Modal Relatório -->
+<div id="modal-relatorio" class="modal-overlay" onclick="fecharModalFora(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 class="modal-titulo">📄 Relatório Final — Copa UNASP 2026</h2>
+      <button class="modal-fechar" onclick="fecharRelatorio()">✕</button>
+    </div>
+    <div class="modal-acoes">
+      <button class="btn-copiar" onclick="copiarRelatorio()">📋 Copiar Texto</button>
+      <span id="copiado-msg" class="copiado-msg">✅ Copiado!</span>
+    </div>
+    <div style="text-align:center;margin:0 0 8px 0">
+      <span class="assinatura-chic sutil">&middot; Desenvolvido por Robson &amp; Neo Lucca</span>
+    </div>
+    <pre id="relatorio-texto" class="relatorio-pre"></pre>
+  </div>
+</div>
+
+<!-- Modal Relatórios de Notícia -->
+<div id="modal-relatorios-noticia" class="modal-overlay" onclick="fecharModalNoticiaFora(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 class="modal-titulo">📰 Relatórios Para Notícia — Copa UNASP 2026</h2>
+      <button class="modal-fechar" onclick="fecharRelatoriosNoticia()">✕</button>
+    </div>
+    <div class="modal-acoes" style="display:flex;flex-wrap:wrap;align-items:center;gap:8px">
+      <button class="btn-mini-rel" id="btn-rel-top10" onclick="selecionarRelatorioNoticia('top10')">Top 10 Mais Caros</button>
+      <button class="btn-mini-rel" id="btn-rel-elenco" onclick="selecionarRelatorioNoticia('elencos')">Elencos Mais Caros</button>
+      <button class="btn-mini-rel" id="btn-rel-compradores" onclick="selecionarRelatorioNoticia('compradores')">Maiores Compradores</button>
+      <button class="btn-mini-rel" id="btn-rel-posicoes" onclick="selecionarRelatorioNoticia('posicoes')">Mercado por Posição</button>
+      <button class="btn-copiar" onclick="copiarRelatorioNoticia()">📋 Copiar Texto</button>
+      <span id="copiado-msg-noticia" class="copiado-msg">✅ Copiado!</span>
+    </div>
+    <div style="padding:0 22px 8px">
+      <span class="tag-rel" id="tag-relatorio-noticia">Top 10 Mais Caros</span>
+    </div>
+    <pre id="relatorio-noticia-texto" class="relatorio-pre"></pre>
+  </div>
+</div>
+
+<!-- Reset oculto (para testes) -->
+<div id="btn-reset-wrapper" style="text-align:center;padding:0 0 24px;display:none">
+  <button onclick="resetarSistema()" style="background:rgba(232,0,61,0.1);border:1px solid rgba(232,0,61,0.3);color:#ff6b8a;padding:8px 20px;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer">
+    ⚠️ RESETAR SISTEMA (Apaga tudo)
+  </button>
+</div>
+
+<footer>
+  <span>⚽ Copa UNASP 2026</span> &nbsp;&middot;&nbsp; <span class="assinatura-chic">&middot; Desenvolvido por Robson &amp; Neo Lucca</span>
+</footer>
+
+<div id="toast-container"></div>
+
+<script src="js/main.js"></script>
+<script>
+// ════════════════════════════════════════════════
+//  ADMIN — Lógica específica
+// ════════════════════════════════════════════════
+
+let craqueAtivo = null;   // id do craque selecionado no form
+let adminToken = "";
+let assinaturaAdmin = "";
+let carregandoAdmin = false;
+let timerAdmin = null;
+
+function authHeaders(extra = {}) {
+  return { ...extra, "X-Admin-Token": adminToken };
+}
+
+function calcAssinaturaAdmin(craques, historico, status) {
+  const saldos = craques.map(c => `${c.id}:${c.saldo}`).join("|");
+  const topo = historico[0] ? historico[0].id : 0;
+  return `${saldos}#${historico.length}#${topo}#${status.iniciado ? 1 : 0}#${status.finalizado ? 1 : 0}`;
+}
+
+function proximoIntervaloAdmin() {
+  if (document.hidden) return 12000;
+  return 6000;
+}
+
+function agendarAdmin() {
+  clearTimeout(timerAdmin);
+  timerAdmin = setTimeout(carregarDados, proximoIntervaloAdmin());
+}
+
+// ── Carregar dados via API ────────────────────────────────────
+async function carregarDados() {
+  if (carregandoAdmin) return;
+  carregandoAdmin = true;
+  try {
+    const [resCraques, resCompras, resStatus] = await Promise.all([
+      fetch("/api/craques"),
+      fetch("/api/compras"),
+      fetch("/api/status"),
+    ]);
+
+    if (!resCraques.ok || !resCompras.ok || !resStatus.ok) throw new Error("Erro na resposta");
+
+    estado.craques         = await resCraques.json();
+    estado.historicoGlobal = await resCompras.json();
+    const status = await resStatus.json();
+
+    const novaAssinatura = calcAssinaturaAdmin(estado.craques, estado.historicoGlobal, status);
+    if (novaAssinatura === assinaturaAdmin) {
+      setConn(true);
+      return;
+    }
+    assinaturaAdmin = novaAssinatura;
+
+    renderCartoes(craqueAtivo, "selecionarCard");
+    renderHistorico(document.getElementById("filtro-hist").value);
+    renderStats();
+    renderChart();
+    popularSelects();
+    atualizarInfoCraque();
+    document.getElementById("iniciar-wrap").style.display    = (status.finalizado || status.iniciado) ? "none" : "block";
+    document.getElementById("finalizar-wrap").style.display  = status.finalizado ? "none" : "block";
+    document.getElementById("reabrir-wrap").style.display    = status.finalizado ? "block" : "none";
+    setConn(true);
+  } catch (err) {
+    setConn(false);
+  } finally {
+    carregandoAdmin = false;
+    agendarAdmin();
+  }
+}
+
+// ── Selects ───────────────────────────────────────────────────
+function popularSelects() {
+  const sel  = document.getElementById("sel-craque");
+  const filt = document.getElementById("filtro-hist");
+  const prev = sel.value;
+
+  sel.innerHTML = `<option value="">— Escolha o craque —</option>` +
+    estado.craques.map(c =>
+      `<option value="${c.id}">${c.nome} — ${c.selecao}</option>`
+    ).join("");
+  sel.value = prev;
+
+  filt.innerHTML = `<option value="todos">Todos os craques</option>` +
+    estado.craques.map(c =>
+      `<option value="${c.nome}">${c.nome} — ${c.selecao}</option>`
+    ).join("");
+}
+
+// ── Seleção de craque via cartão ──────────────────────────────
+function selecionarCard(id) {
+  craqueAtivo = id;
+  document.getElementById("sel-craque").value = id;
+  atualizarInfoCraque();
+  document.getElementById("form-section").scrollIntoView({ behavior: "smooth", block: "center" });
+  renderCartoes(craqueAtivo, "selecionarCard");
+}
+
+function onChangeCraque() {
+  craqueAtivo = parseInt(document.getElementById("sel-craque").value) || null;
+  atualizarInfoCraque();
+  renderCartoes(craqueAtivo, "selecionarCard");
+}
+
+function atualizarInfoCraque() {
+  const info = document.getElementById("craque-info");
+  if (!craqueAtivo || !estado.craques.length) { info.style.display = "none"; return; }
+  const cr = estado.craques.find(c => c.id === craqueAtivo);
+  if (!cr) { info.style.display = "none"; return; }
+  info.innerHTML = `<img src="${cr.bandeira}" style="width:18px;height:18px;object-fit:contain;vertical-align:middle;margin-right:6px"><strong>${cr.nome}</strong> (${cr.selecao}) — Saldo: <strong style="color:${corSaldo(cr.saldo)}">${fmt(cr.saldo)}</strong>`;
+  info.style.display = "block";
+}
+
+// ── Seleção de posição ────────────────────────────────────────
+function selPos(p) {
+  document.getElementById("inp-posicao").value = p;
+  document.querySelectorAll(".btn-pos").forEach(b => b.classList.toggle("ativo", b.dataset.p === p));
+}
+
+// ── Incremento de valor ───────────────────────────────────────
+function adicionarValor(incremento) {
+  const inp = document.getElementById("inp-valor");
+  const valorAtual = parseInt(inp.value) || 0;
+  inp.value = valorAtual + incremento;
+  inp.focus();
+}
+
+function limparValor() {
+  document.getElementById("inp-valor").value = "";
+  document.getElementById("inp-valor").focus();
+}
+
+// ── Registrar compra ──────────────────────────────────────────
+async function registrarCompra() {
+  const erroEl  = document.getElementById("form-erro");
+  const btnEl   = document.getElementById("btn-registrar");
+  const craqueId = parseInt(document.getElementById("sel-craque").value);
+  const jogador  = document.getElementById("inp-jogador").value.trim();
+  const posicao  = document.getElementById("inp-posicao").value;
+  const valor    = parseInt(document.getElementById("inp-valor").value);
+
+  erroEl.style.display = "none";
+
+  // Validação frontend (apenas campos)
+  if (!craqueId) { mostrarErro("Selecione um craque."); return; }
+  if (!jogador)  { mostrarErro("Informe o nome do jogador."); return; }
+  if (!posicao)  { mostrarErro("Selecione a posição do jogador."); return; }
+  if (!valor || valor <= 0) { mostrarErro("Informe um valor válido."); return; }
+
+  btnEl.disabled   = true;
+  btnEl.textContent = "⏳ Registrando...";
+
+  try {
+    const res = await fetch("/api/compras", {
+      method:  "POST",
+      headers: authHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ craque_id: craqueId, jogador, posicao, valor }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      mostrarErro(data.erro || "Erro ao registrar compra.");
+      return;
+    }
+
+    // Limpar form
+    document.getElementById("inp-jogador").value = "";
+    document.getElementById("inp-valor").value   = "";
+    document.getElementById("inp-posicao").value = "";
+    document.querySelectorAll(".btn-pos").forEach(b => b.classList.remove("ativo"));
+
+    toast(`✅ ${jogador} (${posicao}) registrado com sucesso!`, "ok");
+    await carregarDados();
+
+  } catch (err) {
+    mostrarErro("Falha na conexão com o servidor.");
+    setConn(false);
+  } finally {
+    btnEl.disabled    = false;
+    btnEl.textContent = "⚽ REGISTRAR COMPRA";
+  }
+}
+
+function mostrarErro(msg) {
+  const el = document.getElementById("form-erro");
+  el.textContent    = "⚠️ " + msg;
+  el.style.display  = "block";
+  toast("⚠️ " + msg, "erro");
+}
+
+// ── Relatórios para notícia (separado do relatório final) ───
+let relatorioNoticiaAtual = "top10";
+
+function gerarRelatorioNoticia(tipo = "top10") {
+  const agora = new Date().toLocaleString("pt-BR", { day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit" });
+  const compras = [...estado.historicoGlobal];
+  const L = "═".repeat(58);
+  const l = "─".repeat(58);
+  const baseCab = `${L}\n   📰 COPA UNASP 2026 — RELATÓRIOS PARA NOTÍCIA\n${L}\n` +
+                  `  📅 Atualizado em: ${agora}\n${l}\n\n`;
+
+  if (tipo === "top10") {
+    const top10 = compras.slice().sort((a,b) => b.valor - a.valor).slice(0, 10);
+    let t = baseCab + "🔥 TOP 10 MAIORES COMPRAS\n" + l + "\n";
+    if (!top10.length) return t + "\nNenhuma compra registrada ainda.\n";
+    top10.forEach((c, i) => {
+      t += `${String(i + 1).padStart(2, "0")}. ${c.jogador} (${c.posicao || "—"}) — ${c.craque} / ${c.selecao} — ${fmt(c.valor)}\n`;
+    });
+    return t;
+  }
+
+  if (tipo === "elencos") {
+    const ranking = estado.craques.map(cr => {
+      const jogs = compras.filter(c => c.craque_id === cr.id);
+      const total = jogs.reduce((acc, c) => acc + c.valor, 0);
+      return { nome: cr.nome, selecao: cr.selecao, total, qtd: jogs.length };
+    }).sort((a,b) => b.total - a.total);
+    let t = baseCab + "💸 ELENCOS MAIS CAROS\n" + l + "\n";
+    if (!ranking.length) return t + "\nSem dados de elenco ainda.\n";
+    ranking.forEach((r, i) => {
+      t += `${String(i + 1).padStart(2, "0")}. ${r.nome} (${r.selecao}) — ${fmt(r.total)} em ${r.qtd} jogador${r.qtd !== 1 ? "es" : ""}\n`;
+    });
+    return t;
+  }
+
+  if (tipo === "compradores") {
+    const ord = estado.craques.map(cr => {
+      const jogs = compras.filter(c => c.craque_id === cr.id);
+      const gasto = jogs.reduce((acc, c) => acc + c.valor, 0);
+      const media = jogs.length ? Math.round(gasto / jogs.length) : 0;
+      return { nome: cr.nome, selecao: cr.selecao, qtd: jogs.length, gasto, media };
+    }).sort((a,b) => b.qtd - a.qtd || b.gasto - a.gasto);
+    let t = baseCab + "🛒 MAIORES COMPRADORES (VOLUME)\n" + l + "\n";
+    if (!ord.length) return t + "\nSem compras registradas.\n";
+    ord.forEach((r, i) => {
+      t += `${String(i + 1).padStart(2, "0")}. ${r.nome} (${r.selecao}) — ${r.qtd} atleta${r.qtd !== 1 ? "s" : ""} | Total: ${fmt(r.gasto)} | Ticket médio: ${fmt(r.media)}\n`;
+    });
+    return t;
+  }
+
+  if (tipo === "posicoes") {
+    const mapa = {};
+    compras.forEach(c => {
+      const p = c.posicao || "Sem posição";
+      if (!mapa[p]) mapa[p] = { qtd: 0, total: 0, max: null };
+      mapa[p].qtd += 1;
+      mapa[p].total += c.valor;
+      if (!mapa[p].max || c.valor > mapa[p].max.valor) mapa[p].max = c;
+    });
+    const linhas = Object.entries(mapa)
+      .map(([pos, d]) => ({ pos, ...d, media: Math.round(d.total / d.qtd) }))
+      .sort((a,b) => b.total - a.total);
+    let t = baseCab + "📍 MERCADO POR POSIÇÃO\n" + l + "\n";
+    if (!linhas.length) return t + "\nSem compras registradas.\n";
+    linhas.forEach((r, i) => {
+      t += `${String(i + 1).padStart(2, "0")}. ${r.pos} — ${r.qtd} compra${r.qtd !== 1 ? "s" : ""} | Total: ${fmt(r.total)} | Média: ${fmt(r.media)}\n`;
+      t += `    Maior negócio: ${r.max.jogador} (${r.max.craque}) por ${fmt(r.max.valor)}\n`;
+    });
+    return t;
+  }
+
+  return baseCab + "Tipo de relatório inválido.\n";
+}
+
+function selecionarRelatorioNoticia(tipo) {
+  relatorioNoticiaAtual = tipo;
+  const labels = {
+    top10: "Top 10 Mais Caros",
+    elencos: "Elencos Mais Caros",
+    compradores: "Maiores Compradores",
+    posicoes: "Mercado por Posição",
+  };
+  ["top10", "elencos", "compradores", "posicoes"].forEach(id => {
+    const btn = document.getElementById(`btn-rel-${id}`);
+    if (btn) btn.classList.toggle("ativo", id === tipo);
+  });
+  document.getElementById("tag-relatorio-noticia").textContent = labels[tipo] || "Relatório";
+  document.getElementById("relatorio-noticia-texto").textContent = gerarRelatorioNoticia(tipo);
+}
+
+function abrirRelatoriosNoticia() {
+  selecionarRelatorioNoticia(relatorioNoticiaAtual);
+  document.getElementById("copiado-msg-noticia").style.opacity = "0";
+  document.getElementById("modal-relatorios-noticia").classList.add("ativo");
+  document.body.style.overflow = "hidden";
+}
+
+function fecharRelatoriosNoticia() {
+  document.getElementById("modal-relatorios-noticia").classList.remove("ativo");
+  document.body.style.overflow = "";
+}
+
+function fecharModalNoticiaFora(e) {
+  if (e.target.id === "modal-relatorios-noticia") fecharRelatoriosNoticia();
+}
+
+function copiarRelatorioNoticia() {
+  const txt = document.getElementById("relatorio-noticia-texto").textContent;
+  navigator.clipboard.writeText(txt).then(() => {
+    const m = document.getElementById("copiado-msg-noticia");
+    m.style.opacity = "1";
+    setTimeout(() => m.style.opacity = "0", 2500);
+  });
+}
+
+// ── Reset (testes) ────────────────────────────────────────────
+async function resetarSistema() {
+  if (!confirm("⚠️ Isso irá apagar TODAS as compras e redefinir os saldos. Confirma?")) return;
+  const res = await fetch("/api/reset", { method: "POST", headers: authHeaders() });
+  if (!res.ok) {
+    toast("❌ Não autorizado para resetar.", "erro");
+    return;
+  }
+  toast("🔄 Sistema resetado!", "ok");
+  await carregarDados();
+}
+
+// Ativar botão reset com Shift+R+Alt
+document.addEventListener("keydown", e => {
+  if (e.shiftKey && e.altKey && e.key === "R") {
+    document.getElementById("btn-reset-wrapper").style.display = "block";
+  }
+});
+
+// ── Init ──────────────────────────────────────────────────────
+carregarDados();
+document.addEventListener("visibilitychange", agendarAdmin);
+
+// ── Login ─────────────────────────────────────────────────────
+const SENHA = "neorobson";
+
+function verificarSenha() {
+  const input = document.getElementById("login-senha").value;
+  const erro  = document.getElementById("login-erro");
+  if (input === SENHA) {
+    adminToken = input;
+    document.getElementById("login-overlay").classList.add("oculto");
+    erro.textContent = "";
+  } else {
+    adminToken = "";
+    erro.textContent = "⚠️ Senha incorreta!";
+    document.getElementById("login-senha").value = "";
+    document.getElementById("login-senha").focus();
+  }
+}
+
+// ── Finalizar / Reabrir leilão ───────────────────────────────
+async function iniciarLeilao() {
+  if (!confirm("Iniciar o leilão? Uma animação emocionante será exibida no telão.")) return;
+  const res = await fetch("/api/iniciar", { method: "POST", headers: authHeaders() });
+  const d   = await res.json();
+  if (res.ok) {
+    toast("⚽ Leilão iniciado com animação! Prepare-se já!", "ok");
+    document.getElementById("iniciar-wrap").style.display = "none";
+  } else {
+    toast(`❌ ${d.erro || "Não foi possível iniciar."}`, "erro");
+  }
+}
+
+async function finalizarLeilao() {
+  if (!confirm("Finalizar o leilão? O telão entrará em modo de apresentação final.")) return;
+  const res = await fetch("/api/finalizar", { method: "POST", headers: authHeaders() });
+  const d   = await res.json();
+  if (res.ok) {
+    toast("🏁 Leilão finalizado! Apresentação iniciada no telão.", "ok");
+    document.getElementById("finalizar-wrap").style.display = "none";
+    document.getElementById("reabrir-wrap").style.display   = "block";
+  } else {
+    toast(`❌ ${d.erro || "Não foi possível finalizar."}`, "erro");
+  }
+}
+
+async function reabrirLeilao() {
+  if (!confirm("Reabrir o leilão? O telão voltará ao modo normal.")) return;
+  const res = await fetch("/api/reabrir", { method: "POST", headers: authHeaders() });
+  const d = await res.json();
+  if (res.ok) {
+    toast("🔄 Leilão reaberto!", "ok");
+    document.getElementById("iniciar-wrap").style.display = "block";
+    document.getElementById("finalizar-wrap").style.display = "block";
+    document.getElementById("reabrir-wrap").style.display   = "none";
+  } else {
+    toast(`❌ ${d.erro || "Não foi possível reabrir."}`, "erro");
+  }
+}
+
+// ── Desfazer compra ───────────────────────────────────────────
+async function desfazerCompra(id, jogador) {
+  if (!confirm(`Desfazer a compra de "${jogador}"? O saldo será devolvido.`)) return;
+  try {
+    const res = await fetch(`/api/compras/${id}`, { method: "DELETE", headers: authHeaders() });
+    const data = await res.json();
+    if (res.ok) {
+      toast(`↩ Compra de ${jogador} desfeita!`, "ok");
+      await carregarDados();
+    } else {
+      toast(`❌ ${data.erro}`, "erro");
+    }
+  } catch {
+    toast("❌ Erro ao desfazer compra.", "erro");
+  }
+}
+</script>
+
+  <script>
+    // Registrar Service Worker (PWA)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .catch(err => console.log('SW não registrado:', err));
+      });
+    }
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(() => console.log('SW registrado'))
+        .catch(err => console.warn('SW erro:', err));
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Copa UNASP 2026 — Telão</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600;700;900&family=Barlow+Condensed:wght@400;700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --vermelho: #E8003D;
+      --azul:     #0033A0;
+      --amarelo:  #FFD100;
+      --verde:    #2ecc71;
+      --laranja:  #f39c12;
+      --bg:       #06091A;
+      --card:     #0D1230;
+      --borda:    rgba(255,255,255,0.08);
+      --texto:    #F0F4FF;
+      --muted:    #8896C4;
+    }
+
+    html, body {
+      width: 100vw; height: 100vh;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--texto);
+      font-family: 'Barlow', sans-serif;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% 0%,  rgba(0,51,160,0.28) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 40% at 90% 100%, rgba(107,31,168,0.2) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 30% at 10% 80%,  rgba(232,0,61,0.12) 0%, transparent 55%),
+        repeating-linear-gradient(0deg,  transparent, transparent 60px, rgba(255,255,255,0.01) 60px, rgba(255,255,255,0.01) 61px),
+        repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(255,255,255,0.01) 60px, rgba(255,255,255,0.01) 61px);
+      pointer-events: none; z-index: 0;
+    }
+    body > * { position: relative; z-index: 1; }
+
+    /* Modo leve para hardware fraco/rede instável */
+    body.modo-performance * {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+    body.modo-performance .card::after,
+    body.modo-performance .apres-particles,
+    body.modo-performance .apres-rays,
+    body.modo-performance .enc-confetes,
+    body.modo-performance .enc-fogos {
+      display: none !important;
+    }
+    body.modo-performance .card-top,
+    body.modo-performance .aguardando,
+    body.modo-performance .apres-elenco {
+      backdrop-filter: none !important;
+    }
+
+    /* ══════════════════════════════════════════════
+       LAYOUT PRINCIPAL — coluna fixa 100vh
+    ══════════════════════════════════════════════ */
+    .wrapper {
+      width: 100vw; height: 100vh;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Header ──────────────────────────────────── */
+    .header {
+      flex-shrink: 0;
+      background: linear-gradient(135deg, var(--azul) 0%, #001A5C 40%, #4A0D7A 100%);
+      border-bottom: 3px solid var(--amarelo);
+      padding: 8px 24px;
+      display: flex; align-items: center; gap: 18px;
+      position: relative; overflow: hidden;
+      box-shadow: 0 14px 32px rgba(0,0,0,0.33);
+    }
+    .header::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.02) 20px, rgba(255,255,255,0.02) 40px);
+    }
+    .h-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 38px; line-height: 1; letter-spacing: 2px;
+      background: linear-gradient(135deg, var(--amarelo), #FFF8DC, var(--amarelo));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      filter: drop-shadow(0 2px 8px rgba(255,209,0,0.4));
+      position: relative;
+    }
+    .h-info { flex: 1; position: relative; }
+    .h-info h1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 20px; font-weight: 900; letter-spacing: 4px;
+      text-transform: uppercase; color: white;
+    }
+    .h-info p { font-size: 11px; color: rgba(255,255,255,0.45); letter-spacing: 1px; }
+
+    .assinatura-chic {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 22px;
+      letter-spacing: 3.1px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.74);
+      text-shadow: 0 0 14px rgba(255,255,255,0.18);
+      opacity: 0.92;
+    }
+
+    .assinatura-chic.sutil {
+      font-size: 21px;
+      letter-spacing: 2.8px;
+      color: rgba(255,255,255,0.56);
+    }
+    .h-badge {
+      background: var(--vermelho); color: white;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900; font-size: 12px; letter-spacing: 2px;
+      padding: 4px 12px; border-radius: 50px; text-transform: uppercase;
+      position: relative;
+      animation: pulseBadge 2s ease-in-out infinite;
+      box-shadow: 0 8px 24px rgba(232,0,61,0.32);
+    }
+    @keyframes pulseBadge {
+      0%,100% { box-shadow: 0 0 0 0 rgba(232,0,61,0.6); }
+      50%      { box-shadow: 0 0 0 8px rgba(232,0,61,0); }
+    }
+    .conn-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--verde); position: relative;
+      animation: blink 2s ease-in-out infinite;
+    }
+    .conn-dot.off { background: var(--vermelho); animation: none; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* ── Stats bar ───────────────────────────────── */
+    .stats {
+      flex-shrink: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.5), rgba(7,10,28,0.6));
+      border-bottom: 1px solid var(--borda);
+      display: flex;
+    }
+    .stat {
+      flex: 1; text-align: center;
+      padding: 6px 12px;
+      border-right: 1px solid var(--borda);
+    }
+    .stat:last-child { border-right: none; }
+    .stat-val {
+      display: block; font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px; color: var(--amarelo); line-height: 1;
+      text-shadow: 0 0 14px rgba(255,209,0,0.28);
+    }
+    .stat-lbl {
+      display: block; font-size: 8px; color: var(--muted);
+      letter-spacing: 2px; text-transform: uppercase; margin-top: 1px;
+    }
+
+    /* ── Grid de craques — área principal ────────── */
+    .grid-area {
+      flex: 1; min-height: 0;
+      padding: 10px 12px 0 12px;
+      position: relative;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 32px;
+      width: 90vw;
+      height: 80vh;
+      margin: 0 auto;
+      justify-content: center;
+      align-items: center;
+      perspective: 1000px;
+    }
+
+    /* Centralizar grid-area */
+    .grid-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      padding: 0;
+    }
+
+    /* ── Cartão ──────────────────────────────────── */
+    .card {
+      background: linear-gradient(165deg, rgba(255,255,255,0.05), rgba(13,18,48,0.96));
+      border: 1.5px solid rgba(255,255,255,0.16);
+      border-radius: 18px;
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      position: relative;
+      box-shadow: 0 16px 44px rgba(0,0,0,0.45);
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      isolation: isolate;
+      min-width: 0;
+      min-height: 0;
+      font-size: 1.35em;
+    }
+    .card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.05) 35%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.05) 65%, transparent 100%);
+      transform: translateX(-130%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .card:hover::after {
+      animation: cardSheen 0.8s ease;
+    }
+    @keyframes cardSheen {
+      from { transform: translateX(-130%); }
+      to { transform: translateX(130%); }
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 32px rgba(0,0,0,0.45);
+      border-color: rgba(255,255,255,0.22);
+    }
+    .card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--cor-sel, var(--azul)), var(--cor-sec, var(--amarelo)));
+    }
+    .card.critico { border-color: rgba(231,76,60,0.5); }
+    .card.zerado  { border-color: rgba(231,76,60,0.9); opacity: 0.7; }
+
+    /* Topo do cartão: brasão + nome + saldo */
+    .card-top {
+      flex-shrink: 0;
+      padding: 18px 22px 12px 22px;
+      display: flex; align-items: center; gap: 18px;
+      border-bottom: 1.5px solid var(--borda);
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(8px);
+    }
+    .card-brasao {
+      width: 60px; height: 60px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .card-brasao img {
+      width: 100%; height: 100%; object-fit: contain;
+    }
+    .card-meta { flex: 1; min-width: 0; }
+    .card-nome {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 2.1em; font-weight: 900; letter-spacing: 1.2px;
+      color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .card-selecao {
+      font-size: 1.1em; color: var(--muted);
+      letter-spacing: 1.5px; text-transform: uppercase;
+    }
+    .card-saldo-wrap { flex-shrink: 0; text-align: right; }
+    .card-saldo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px; letter-spacing: 1px; line-height: 1;
+      transition: color 0.5s;
+      text-shadow: 0 0 10px rgba(255,255,255,0.14);
+    }
+    .card-barra {
+      height: 3px; background: rgba(255,255,255,0.08);
+      border-radius: 99px; overflow: hidden; margin-top: 3px; width: 80px;
+    }
+    .card-barra-fill { height: 100%; border-radius: 99px; transition: width 0.8s ease; }
+
+    /* Lista de jogadores — área scrollável invisível */
+    .card-elenco {
+      flex: 1; min-height: 0;
+      overflow-y: auto;
+      padding: 18px 18px 18px 18px;
+      scrollbar-width: none;
+      font-size: 1.1em;
+    }
+    .card-elenco::-webkit-scrollbar { display: none; }
+
+    .elenco-header {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.1em; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--muted);
+      display: flex; justify-content: space-between;
+      margin-bottom: 10px; padding-bottom: 6px;
+      border-bottom: 1.5px solid rgba(255,255,255,0.09);
+    }
+    .elenco-gasto { color: var(--vermelho); }
+
+    .jog-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 12px; border-radius: 8px; margin-bottom: 6px;
+      background: rgba(255,255,255,0.07);
+      border: 1.5px solid rgba(255,255,255,0.09);
+      font-size: 1.15em;
+      transition: background 0.2s;
+    }
+    .jog-item.novo {
+      background: rgba(255,209,0,0.08);
+      animation: novoPulse 1s ease;
+    }
+    @keyframes novoPulse {
+      0%  { box-shadow: 0 0 0 0 rgba(255,209,0,0.4); }
+      100%{ box-shadow: 0 0 0 6px rgba(255,209,0,0); }
+    }
+    .jog-nome {
+      color: var(--texto); font-weight: 700;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      max-width: 70%;
+      font-size: 1.1em;
+    }
+    .jog-val {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.1em; font-weight: 700;
+      color: var(--amarelo); flex-shrink: 0;
+    }
+    .jog-vazio {
+      font-size: 10px; color: var(--muted);
+      font-style: italic; text-align: center; padding: 8px 0;
+    }
+
+    /* Badge posição */
+    .bp {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 8px; font-weight: 900; letter-spacing: 0.5px;
+      padding: 1px 4px; border-radius: 3px; text-transform: uppercase;
+      flex-shrink: 0; margin-right: 3px;
+    }
+    .bp-goleiro { background: rgba(46,204,113,0.2);  border: 1px solid rgba(46,204,113,0.35); color: #2ecc71; }
+    .bp-fixo    { background: rgba(0,153,255,0.2);   border: 1px solid rgba(0,153,255,0.35);  color: #4fc3f7; }
+    .bp-ala     { background: rgba(255,209,0,0.15);  border: 1px solid rgba(255,209,0,0.35);  color: var(--amarelo); }
+    .bp-pivo    { background: rgba(232,0,61,0.15);   border: 1px solid rgba(232,0,61,0.35);   color: #ff6b8a; }
+
+    /* ── Rodapé: ranking + últimas compras ────────── */
+    .footer-bar {
+      flex-shrink: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.5), rgba(4,6,20,0.68));
+      border-top: 1px solid var(--borda);
+      display: flex;
+      height: 52px;
+      overflow: hidden;
+      align-items: center;
+    }
+
+    .footer-credit {
+      padding: 0 12px;
+      border-left: 1px solid rgba(255,255,255,0.07);
+      white-space: nowrap;
+      align-self: stretch;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Ranking compacto */
+    .rank-strip {
+      display: flex; align-items: center; gap: 0;
+      padding: 0 12px;
+      border-right: 1px solid var(--borda);
+      flex-shrink: 0;
+    }
+    .rank-strip-titulo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 14px; letter-spacing: 2px; color: var(--amarelo);
+      margin-right: 10px; white-space: nowrap;
+    }
+    .rank-item {
+      display: flex; align-items: center; gap: 5px;
+      padding: 4px 10px; border-radius: 6px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      margin-right: 5px;
+      box-shadow: inset 0 0 8px rgba(255,255,255,0.02);
+    }
+    .rank-item:first-of-type {
+      background: rgba(255,209,0,0.08);
+      border-color: rgba(255,209,0,0.2);
+    }
+    .rank-med   { font-size: 13px; }
+    .rank-brasao{ width: 20px; height: 20px; object-fit: contain; }
+    .rank-nome  {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px; font-weight: 900; color: white;
+      white-space: nowrap;
+    }
+    .rank-saldo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 12px; font-weight: 700;
+    }
+
+    /* Feed de compras compacto */
+    .feed-strip {
+      flex: 1; display: flex; align-items: center;
+      gap: 8px; padding: 0 12px;
+      overflow: hidden;
+    }
+    .feed-titulo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 14px; letter-spacing: 2px; color: var(--amarelo);
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .feed-items {
+      flex: 1; display: flex; gap: 6px; overflow: hidden;
+    }
+    .feed-item {
+      display: flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 6px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      font-size: 11px; white-space: nowrap;
+      flex-shrink: 0;
+      box-shadow: inset 0 0 8px rgba(255,255,255,0.02);
+    }
+    .feed-item.novo {
+      background: rgba(255,209,0,0.08);
+      border-color: rgba(255,209,0,0.2);
+    }
+    .feed-brasao { width: 18px; height: 18px; object-fit: contain; }
+    .feed-craque { color: var(--muted); font-size: 10px; }
+    .feed-jog    { font-weight: 700; color: white; }
+    .feed-val    {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 12px; font-weight: 700; color: var(--amarelo);
+    }
+    .feed-vazio  { color: var(--muted); font-size: 12px; font-style: italic; }
+
+    /* ── Overlay aguardando ───────────────────────── */
+    .aguardando {
+      position: absolute; inset: 0;
+      background: rgba(6,9,26,0.88);
+      backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 20; border-radius: 10px;
+      transition: opacity 0.7s ease;
+    }
+    .aguardando.oculto { opacity: 0; pointer-events: none; }
+    .ag-box { text-align: center; }
+    .ag-icon {
+      font-size: 72px; display: block; margin-bottom: 18px;
+      animation: spin 4s linear infinite;
+    }
+    @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+    .ag-titulo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 40px; letter-spacing: 5px; color: var(--amarelo);
+    }
+    .ag-sub { font-size: 14px; color: var(--muted); letter-spacing: 1px; margin-top: 8px; }
+
+    /* ── Apresentação final ──────────────────────── */
+    /* ══════════════════════════════════════════════════
+       APRESENTAÇÃO FINAL — ULTRA ÉPICA
+    ══════════════════════════════════════════════════ */
+    .apresentacao-overlay {
+      position: fixed; inset: 0; z-index: 60;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 1s ease;
+      overflow: hidden;
+    }
+    .apresentacao-overlay::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 120% 80% at 50% -10%, rgba(0,51,160,0.6) 0%, transparent 60%),
+        radial-gradient(ellipse 80% 60% at 100% 100%, rgba(107,31,168,0.5) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 50% at 0% 90%,   rgba(232,0,61,0.25) 0%, transparent 55%),
+        #06091A;
+      animation: bgPulse 4s ease-in-out infinite alternate;
+    }
+    .apresentacao-overlay::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.35) 0%, rgba(255,209,0,0.12) 25%, transparent 60%);
+      opacity: 0;
+      pointer-events: none;
+    }
+    .apresentacao-overlay.flash::after {
+      animation: apresFlash 0.55s ease-out;
+    }
+    @keyframes apresFlash {
+      0% { opacity: 0; }
+      20% { opacity: 0.95; }
+      100% { opacity: 0; }
+    }
+    @keyframes bgPulse {
+      0%   { filter: brightness(1); }
+      100% { filter: brightness(1.15); }
+    }
+    .apresentacao-overlay.ativo { opacity: 1; pointer-events: all; }
+
+    /* Raios de luz */
+    .apres-rays {
+      position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+    }
+    .apres-ray {
+      position: absolute; bottom: -50%;
+      width: 2px; height: 120%;
+      background: linear-gradient(to top, transparent, rgba(255,209,0,0.15), transparent);
+      transform-origin: bottom center;
+      animation: rayRotate linear infinite;
+    }
+    @keyframes rayRotate {
+      0%   { opacity: 0; }
+      20%  { opacity: 1; }
+      80%  { opacity: 1; }
+      100% { opacity: 0; transform: rotate(var(--rot-end)); }
+    }
+
+    /* Partículas */
+    .apres-particles { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+    .apres-particle {
+      position: absolute; border-radius: 50%;
+      animation: floatUp linear infinite;
+    }
+    @keyframes floatUp {
+      0%   { opacity: 0; transform: translateY(0) scale(0) rotate(0deg); }
+      15%  { opacity: 0.8; }
+      85%  { opacity: 0.3; }
+      100% { opacity: 0; transform: translateY(-110vh) scale(2) rotate(360deg); }
+    }
+
+    .apres-card {
+      width: 720px; max-height: 95vh;
+      display: flex; flex-direction: column; overflow: hidden;
+      position: relative; z-index: 1;
+      animation: cardEntrada 0.75s cubic-bezier(0.22,1.2,0.36,1) both;
+      filter: drop-shadow(0 26px 56px rgba(0,0,0,0.55));
+    }
+    .apres-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.05) 35%, rgba(255,209,0,0.2) 50%, rgba(255,255,255,0.05) 65%, transparent 100%);
+      transform: translateX(-130%);
+      animation: cardSweep 1.1s ease-out 0.3s both;
+      pointer-events: none;
+      z-index: 2;
+    }
+    @keyframes cardEntrada {
+      from { opacity: 0; transform: translateY(34px) scale(0.94); filter: blur(3px); }
+      to   { opacity: 1; transform: translateY(0)    scale(1);    filter: blur(0); }
+    }
+    @keyframes cardSweep {
+      from { transform: translateX(-130%); }
+      to   { transform: translateX(130%); }
+    }
+
+    /* Header */
+    .apres-header { text-align: center; padding: 0 0 16px; flex-shrink: 0; }
+
+    .apres-titulo-geral {
+      font-family: "Bebas Neue", sans-serif; font-size: 15px;
+      letter-spacing: 10px; color: var(--amarelo); margin-bottom: 16px;
+      opacity: 0; animation: fadeDown 0.6s ease 0.1s forwards;
+      text-shadow: 0 0 20px rgba(255,209,0,0.5);
+    }
+
+    .apres-brasao-wrap {
+      position: relative; display: inline-block; margin-bottom: 12px;
+    }
+    .apres-brasao-glow {
+      position: absolute; inset: -20px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,209,0,0.3) 0%, transparent 70%);
+      animation: glowPulse 1.5s ease-in-out infinite alternate;
+    }
+    @keyframes glowPulse {
+      from { opacity: 0.5; transform: scale(0.9); }
+      to   { opacity: 1;   transform: scale(1.1); }
+    }
+    .apres-brasao {
+      width: 140px; height: 140px; object-fit: contain; position: relative; z-index: 1;
+      opacity: 0; animation: brasaoEntrada 0.8s cubic-bezier(0.34,1.8,0.64,1) 0.2s forwards;
+      filter: drop-shadow(0 0 30px rgba(255,209,0,0.5));
+    }
+    @keyframes brasaoEntrada {
+      from { opacity:0; transform: scale(0.2) rotate(-30deg); }
+      60%  { opacity:1; transform: scale(1.15) rotate(5deg); }
+      to   { opacity:1; transform: scale(1) rotate(0deg); }
+    }
+
+    .apres-nome {
+      font-family: "Bebas Neue", sans-serif; font-size: 84px;
+      letter-spacing: 6px; color: white; line-height: 1;
+      opacity: 0; animation: nomeEntrada 0.6s cubic-bezier(0.34,1.4,0.64,1) 0.45s forwards;
+      text-shadow: 0 4px 40px rgba(255,255,255,0.2);
+    }
+    @keyframes nomeEntrada {
+      from { opacity:0; transform: translateY(30px) scaleX(0.8); letter-spacing: 20px; }
+      to   { opacity:1; transform: translateY(0)    scaleX(1);   letter-spacing: 6px;  }
+    }
+
+    .apres-selecao {
+      font-size: 14px; color: var(--muted); letter-spacing: 6px;
+      text-transform: uppercase; margin-top: 4px;
+      opacity: 0; animation: fadeIn 0.5s ease 0.65s forwards;
+    }
+
+    .apres-chamada {
+      margin-top: 10px;
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 14px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.82);
+      opacity: 0;
+      animation: fadeIn 0.5s ease 0.75s forwards;
+    }
+
+    .apres-linha {
+      height: 2px; width: 0; margin: 14px auto 0;
+      background: linear-gradient(90deg, transparent, var(--amarelo), #fff8dc, var(--amarelo), transparent);
+      animation: expandLinha 0.7s ease 0.85s forwards;
+      box-shadow: 0 0 10px rgba(255,209,0,0.4);
+    }
+    @keyframes expandLinha { to { width: 400px; } }
+
+    /* Elenco */
+    .apres-elenco {
+      background: rgba(8,12,35,0.85);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 18px; flex: 1; min-height: 0;
+      overflow-y: auto; padding: 18px 22px; scrollbar-width: none;
+      backdrop-filter: blur(12px);
+      opacity: 0; animation: fadeIn 0.5s ease 0.9s forwards;
+      box-shadow: inset 0 0 40px rgba(0,0,0,0.3);
+    }
+    .apres-elenco::-webkit-scrollbar { display: none; }
+    .apres-elenco-titulo {
+      font-family: "Barlow Condensed", sans-serif; font-size: 11px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase; color: var(--muted);
+      margin-bottom: 12px; display: flex; justify-content: space-between;
+      padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .apres-jog {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 11px 14px; border-radius: 10px; margin-bottom: 7px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      font-size: 16px; opacity: 0;
+      animation: jogEntrada 0.5s cubic-bezier(0.34,1.4,0.64,1) both;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .apres-jog:hover { background: rgba(255,209,0,0.08); transform: translateX(4px); }
+    @keyframes jogEntrada {
+      from { opacity:0; transform: translateX(-30px) scale(0.9); filter: blur(2px); }
+      to   { opacity:1; transform: translateX(0)      scale(1);   filter: blur(0);   }
+    }
+    .apres-jog-nome { font-weight: 700; color: white; display: flex; align-items: center; gap: 8px; }
+    .apres-jog-val  {
+      font-family: "Barlow Condensed", sans-serif; font-size: 18px; font-weight: 700; color: var(--amarelo);
+      text-shadow: 0 0 10px rgba(255,209,0,0.35);
+      animation: valorPulse 1.8s ease-in-out infinite alternate;
+    }
+    @keyframes valorPulse {
+      from { transform: scale(1); opacity: 0.9; }
+      to   { transform: scale(1.06); opacity: 1; }
+    }
+    .apres-vazio { text-align: center; color: var(--muted); font-style: italic; padding: 24px; font-size: 14px; }
+
+    /* Dots */
+    .apres-nav { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 0 0; flex-shrink: 0; }
+    .apres-dots { display: flex; gap: 8px; }
+    .apres-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2); transition: all 0.4s ease; }
+    .apres-dot.ativo { background: var(--amarelo); transform: scale(1.8); box-shadow: 0 0 12px rgba(255,209,0,0.8); animation: dotPulse 0.9s ease-in-out infinite alternate; }
+    @keyframes dotPulse {
+      from { transform: scale(1.55); }
+      to   { transform: scale(1.95); }
+    }
+
+    /* Progress */
+    .apres-progress { flex-shrink: 0; height: 3px; background: rgba(255,255,255,0.06); margin-top: 12px; border-radius: 99px; overflow: hidden; }
+    .apres-progress-fill { height: 100%; background: linear-gradient(90deg, var(--amarelo), #fff8a0, var(--amarelo)); background-size: 200%; animation: shimmer 1.5s linear infinite; }
+    .apres-progress-fill.drenando { animation: apDrain var(--ap-dur, 8s) linear forwards, shimmer 1.5s linear infinite; }
+    @keyframes shimmer { 0%{background-position:200%} 100%{background-position:-200%} }
+    @keyframes apDrain  { from{width:100%} to{width:0%} }
+
+    @keyframes fadeDown  { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes zoomIn    { from{opacity:0;transform:scale(0.3)} to{opacity:1;transform:scale(1)} }
+    @keyframes slideUp   { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes fadeIn    { from{opacity:0} to{opacity:1} }
+
+    @keyframes abrirFade { from{opacity:0} to{opacity:1} }
+    @keyframes titlePop { from{opacity:0;transform:scale(0.4) rotate(-15deg)} to{opacity:1;transform:scale(1) rotate(0deg)} }
+
+    /* ══════════════════════════════════════════════════
+       TELA ENCERRADO — FOGOS + EFEITOS
+    ══════════════════════════════════════════════════ */
+    .enc-screen {
+      position: fixed; inset: 0; z-index: 70;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 0;
+      opacity: 0; pointer-events: none; transition: opacity 1.2s ease;
+      overflow: hidden;
+    }
+    .enc-screen::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 100% 80% at 50% 50%, rgba(255,209,0,0.08) 0%, transparent 65%),
+        radial-gradient(ellipse 70% 50% at 15% 80%, rgba(0,51,160,0.4) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 50% at 85% 20%, rgba(107,31,168,0.4) 0%, transparent 55%),
+        #06091A;
+      animation: encBgPulse 3s ease-in-out infinite alternate;
+    }
+    @keyframes encBgPulse {
+      0%   { filter: brightness(1); }
+      100% { filter: brightness(1.2); }
+    }
+    .enc-screen.ativo { opacity: 1; pointer-events: all; }
+
+    /* Fogos de artifício */
+    .enc-fogos { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+    .enc-fogo-burst {
+      position: absolute; border-radius: 50%;
+      animation: fogoBurst ease-out both;
+    }
+    @keyframes fogoBurst {
+      0%   { opacity: 1; transform: scale(0); }
+      50%  { opacity: 0.8; }
+      100% { opacity: 0; transform: scale(1); }
+    }
+    .enc-fogo-spark {
+      position: absolute; border-radius: 50%;
+      animation: fogoSpark ease-out both;
+    }
+    @keyframes fogoSpark {
+      0%   { opacity: 1; transform: translate(0,0) scale(1); }
+      100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0.2); }
+    }
+
+    /* Troféu */
+    .enc-trofeu {
+      font-size: 0; position: relative; z-index: 1; line-height: 1;
+    }
+    .enc-screen.ativo .enc-trofeu {
+      font-size: 100px;
+      animation: trofeuEntrada 1s cubic-bezier(0.34,2,0.64,1) 0.4s both;
+    }
+    @keyframes trofeuEntrada {
+      0%   { opacity:0; transform: scale(0) rotate(-40deg) translateY(60px); }
+      60%  { opacity:1; transform: scale(1.2) rotate(5deg) translateY(-10px); }
+      100% { opacity:1; transform: scale(1) rotate(0) translateY(0); }
+    }
+
+    /* Brilho dourado atrás do troféu */
+    .enc-trofeu-glow {
+      position: absolute; width: 200px; height: 200px;
+      border-radius: 50%; z-index: 0;
+      background: radial-gradient(circle, rgba(255,209,0,0.3) 0%, transparent 70%);
+      animation: trofeuGlow 2s ease-in-out 1.2s infinite alternate;
+    }
+    @keyframes trofeuGlow {
+      from { transform: scale(0.8); opacity: 0.5; }
+      to   { transform: scale(1.3); opacity: 1;   }
+    }
+
+    .enc-titulo {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 0; color: var(--amarelo);
+      text-align: center; position: relative; z-index: 1;
+      text-shadow: 0 0 80px rgba(255,209,0,0.6), 0 0 160px rgba(255,209,0,0.3);
+    }
+    .enc-screen.ativo .enc-titulo {
+      font-size: 80px; letter-spacing: 10px;
+      animation: encTituloEntrada 0.9s cubic-bezier(0.34,1.4,0.64,1) 1s both;
+    }
+    @keyframes encTituloEntrada {
+      from { opacity:0; transform: scale(0.6) translateY(20px); letter-spacing: 30px; filter: blur(8px); }
+      to   { opacity:1; transform: scale(1)   translateY(0);    letter-spacing: 10px; filter: blur(0);   }
+    }
+
+    .enc-linha {
+      height: 3px; width: 0; margin: 14px auto;
+      background: linear-gradient(90deg, transparent, var(--amarelo), #fff8dc, var(--amarelo), transparent);
+      position: relative; z-index: 1;
+      box-shadow: 0 0 16px rgba(255,209,0,0.5);
+      animation: encLinha 1s ease 1.7s forwards;
+    }
+    @keyframes encLinha { to { width: 500px; } }
+
+    .enc-sub {
+      font-size: 0; letter-spacing: 5px; text-align: center;
+      position: relative; z-index: 1;
+      font-family: "Barlow Condensed", sans-serif; font-weight: 700;
+      text-transform: uppercase; color: rgba(255,255,255,0.75);
+    }
+    .enc-screen.ativo .enc-sub {
+      font-size: 20px;
+      animation: fadeIn 0.8s ease 2s both;
+    }
+
+    .enc-credit {
+      margin-top: 16px;
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 12px;
+      letter-spacing: 3.4px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.78);
+      position: relative;
+      z-index: 1;
+      opacity: 0;
+      text-shadow: 0 0 18px rgba(255,255,255,0.2);
+    }
+    .enc-screen.ativo .enc-credit {
+      animation: fadeIn 0.8s ease 2.4s both;
+    }
+
+    /* Confetes */
+    .enc-confetes { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+    .enc-confete {
+      position: absolute; opacity: 0;
+      animation: confeteFall linear infinite;
+    }
+    @keyframes confeteFall {
+      0%   { opacity:0; transform: translateY(-30px) rotate(0deg) scale(0); }
+      8%   { opacity:1; transform: translateY(0) rotate(45deg) scale(1); }
+      92%  { opacity:0.9; }
+      100% { opacity:0; transform: translateY(115vh) rotate(var(--rot-end, 720deg)) scale(0.5); }
+    }
+
+    .enc-logos {
+      display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;
+      justify-content: center; max-width: 600px;
+      opacity: 0; position: relative; z-index: 1;
+      animation: logosEntrada 0.8s cubic-bezier(0.34,1.4,0.64,1) 2.4s both;
+    }
+    @keyframes logosEntrada {
+      from { opacity:0; transform: translateY(20px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+    .enc-logo-img {
+      width: 44px; height: 44px; object-fit: contain;
+      filter: drop-shadow(0 2px 8px rgba(255,209,0,0.3));
+      transition: transform 0.3s;
+      animation: logoFloat ease-in-out infinite alternate;
+    }
+    @keyframes logoFloat {
+      from { transform: translateY(0); }
+      to   { transform: translateY(-5px); }
+    }
+
+    /* Indicador brilho no card após compra */
+    .card.compra-recente {
+      border-color: var(--amarelo) !important;
+      animation: cardBrilho 4s ease forwards;
+    }
+    @keyframes cardBrilho {
+      0%   { box-shadow: 0 0 0 2px var(--amarelo), 0 0 28px rgba(255,209,0,0.5); }
+      60%  { box-shadow: 0 0 0 2px rgba(255,209,0,0.3), 0 0 10px rgba(255,209,0,0.1); }
+      100% { box-shadow: none; border-color: var(--borda); }
+    }
+
+        /* ── Notificação central ──────────────────────── */
+    .notif-overlay {
+      position: fixed; inset: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: none;
+      background: rgba(0,0,0,0);
+      transition: background 0.4s;
+    }
+    .notif-overlay.ativo { background: rgba(0,0,0,0.6); }
+    .notif-box {
+      background: linear-gradient(145deg, #0D1230, #1a2050, #0D1230);
+      border: 2px solid var(--amarelo);
+      border-radius: 28px; padding: 40px 60px;
+      text-align: center; max-width: 680px; width: 90%;
+      box-shadow: 0 0 100px rgba(255,209,0,0.2), 0 40px 80px rgba(0,0,0,0.9);
+      opacity: 0; transform: scale(0.6) translateY(60px);
+      transition: all 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative; overflow: hidden;
+    }
+    .notif-box::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.015) 20px, rgba(255,255,255,0.015) 40px);
+    }
+    .notif-overlay.ativo .notif-box { opacity: 1; transform: scale(1) translateY(0); }
+
+    .notif-emoji { font-size: 64px; display: block; margin-bottom: 8px; position: relative; animation: nb 0.5s ease infinite alternate; }
+    @keyframes nb { from{transform:translateY(0)} to{transform:translateY(-10px)} }
+    .notif-titulo { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 6px; color: var(--amarelo); margin-bottom: 14px; position: relative; }
+    .notif-flag { display: flex; align-items: center; justify-content: center; margin-bottom: 6px; position: relative; }
+    .notif-flag img { width: 64px; height: 64px; object-fit: contain; }
+    .notif-craque { font-family: 'Bebas Neue', sans-serif; font-size: 50px; letter-spacing: 2px; color: white; line-height: 1; position: relative; }
+    .notif-selecao { font-size: 13px; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 20px; position: relative; }
+    .notif-jog-wrap {
+      background: rgba(255,209,0,0.08); border: 1px solid rgba(255,209,0,0.3);
+      border-radius: 14px; padding: 16px 24px; margin-bottom: 18px; position: relative;
+    }
+    .notif-jog-lbl { font-size: 9px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; display: block; margin-bottom: 5px; }
+    .notif-jog-nome { font-family: 'Bebas Neue', sans-serif; font-size: 44px; letter-spacing: 2px; color: var(--amarelo); line-height: 1; }
+    .notif-pos { font-size: 13px; color: rgba(255,255,255,0.55); letter-spacing: 2px; text-transform: uppercase; margin-top: 5px; }
+    .notif-val-lbl { font-size: 10px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
+    .notif-val { font-family: 'Bebas Neue', sans-serif; font-size: 38px; color: var(--verde); letter-spacing: 2px; position: relative; }
+    .notif-progress { position: absolute; bottom: 0; left: 0; right: 0; height: 5px; background: rgba(255,255,255,0.06); border-radius: 0 0 28px 28px; overflow: hidden; }
+    .notif-progress-fill { height: 100%; background: var(--amarelo); width: 100%; }
+    .notif-overlay.ativo .notif-progress-fill { animation: drain 3.5s linear forwards; }
+    @keyframes drain { from{width:100%} to{width:0%} }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="h-logo">Copa<br>UNASP</div>
+    <div class="h-info">
+      <h1>Leilão ao Vivo — 2026</h1>
+      <p>Placar em tempo real · Atualização automática</p>
+      <p style="margin-top:12px"><span class="assinatura-chic sutil">&middot; Desenvolvido por Robson &amp; Neo Lucca</span></p>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;position:relative">
+      <div class="conn-dot" id="conn-dot"></div>
+      <div class="h-badge">📺 Ao Vivo</div>
+    </div>
+  </header>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat"><span class="stat-val" id="stat-total-gastos">— cr</span><span class="stat-lbl">Total Movimentado</span></div>
+    <div class="stat"><span class="stat-val" id="stat-total-jogadores">—</span><span class="stat-lbl">Jogadores Leiloados</span></div>
+    <div class="stat"><span class="stat-val" id="stat-media-saldo">— cr</span><span class="stat-lbl">Média de Saldo</span></div>
+    <div class="stat"><span class="stat-val" id="stat-lider">—</span><span class="stat-lbl">Líder do Leilão</span></div>
+  </div>
+
+  <!-- Grid -->
+  <div class="grid-area">
+    <div class="grid" id="grid"></div>
+
+    <!-- Overlay aguardando -->
+    <div class="aguardando" id="aguardando">
+      <div class="ag-box">
+        <span class="ag-icon">⚽</span>
+        <div class="ag-titulo">Aguardando Início do Leilão</div>
+        <div class="ag-sub">As compras aparecerão aqui em tempo real</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rodapé: ranking + feed -->
+  <div class="footer-bar">
+
+    <div class="rank-strip">
+      <span class="rank-strip-titulo">🏆 RANKING</span>
+      <div id="rank-items"></div>
+    </div>
+
+    <div class="feed-strip">
+      <span class="feed-titulo">📋 ÚLTIMAS</span>
+      <div class="feed-items" id="feed-items">
+        <span class="feed-vazio">Aguardando compras...</span>
+      </div>
+    </div>
+
+    <div class="footer-credit">
+      <span class="assinatura-chic sutil">&middot; Desenvolvido por Robson &amp; Neo Lucca</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- Apresentação final -->
+<div class="apresentacao-overlay" id="apresentacao-overlay">
+  <div class="apres-particles" id="apres-particles"></div>
+  <div class="apres-rays" id="apres-rays"></div>
+  <div class="apres-card">
+    <div class="apres-header">
+      <div class="apres-titulo-geral">⚽ COPA UNASP 2026 — ELENCO FINAL</div>
+      <div class="apres-brasao-wrap">
+        <div class="apres-brasao-glow"></div>
+        <img class="apres-brasao" id="ap-brasao" src="" alt="" />
+      </div>
+      <div class="apres-nome"    id="ap-nome"></div>
+      <div class="apres-selecao" id="ap-selecao"></div>
+      <div class="apres-chamada">Plantel Oficial Definido</div>
+      <div class="apres-linha"></div>
+    </div>
+    <div class="apres-elenco">
+      <div class="apres-elenco-titulo">
+        <span id="ap-elenco-count">Elenco</span>
+        <span id="ap-elenco-gasto" style="color:var(--vermelho)"></span>
+      </div>
+      <div id="ap-jogs"></div>
+    </div>
+    <div class="apres-nav">
+      <div class="apres-dots" id="ap-dots"></div>
+    </div>
+    <div class="apres-progress"><div class="apres-progress-fill" id="ap-progress-fill"></div></div>
+  </div>
+</div>
+
+<!-- Tela encerrado -->
+<div class="enc-screen" id="enc-screen">
+  <div class="enc-confetes" id="enc-confetes"></div>
+  <div class="enc-fogos"    id="enc-fogos"></div>
+  <div class="enc-trofeu-glow"></div>
+  <div class="enc-trofeu">🏆</div>
+  <div class="enc-titulo">Leilão Encerrado!</div>
+  <div class="enc-linha"></div>
+  <div class="enc-sub">Copa UNASP 2026 · Obrigado a todos!</div>
+  <div class="enc-credit">&middot; Desenvolvido por Robson &amp; Neo Lucca</div>
+  <div class="enc-logos" id="enc-logos"></div>
+</div>
+
+<!-- Notificação -->
+<div class="notif-overlay" id="notif-overlay">
+  <div class="notif-box">
+    <span class="notif-emoji">🔔</span>
+    <div class="notif-titulo">Nova Compra!</div>
+    <div class="notif-flag"   id="notif-flag"></div>
+    <div class="notif-craque" id="notif-craque"></div>
+    <div class="notif-selecao" id="notif-selecao"></div>
+    <div class="notif-jog-wrap">
+      <span class="notif-jog-lbl">Jogador Adquirido</span>
+      <div class="notif-jog-nome" id="notif-jog"></div>
+      <div class="notif-pos"      id="notif-pos"></div>
+    </div>
+    <div class="notif-val-lbl">Valor Pago</div>
+    <div class="notif-val" id="notif-val"></div>
+    <div class="notif-progress"><div class="notif-progress-fill" id="notif-fill"></div></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+//  TELÃO — lógica completa
+// ════════════════════════════════════════════
+const SALDO_INICIAL = 100000;
+const POLL = 6000;
+let estado = { craques: [], compras: [] };
+let ultimaId = null;
+let notifTimer = null;
+let viuTelaSemCompras = false;
+let carregandoAgora = false;
+let pollTimer = null;
+let elencoScrollTimer = null;
+let assinaturaEstado = "";
+
+const paramsTelao = new URLSearchParams(window.location.search);
+const prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent || "");
+const cpuFraca = (navigator.hardwareConcurrency || 8) <= 6;
+const modoPerformance = paramsTelao.get("modo") === "leve" || prefersReducedMotion || (isMobile && cpuFraca);
+if (modoPerformance) document.body.classList.add("modo-performance");
+
+const fmt = v => new Intl.NumberFormat("pt-BR").format(v) + " cr";
+const pct = s => (s / SALDO_INICIAL) * 100;
+
+function corSaldo(s) {
+  const p = pct(s);
+  if (p <= 20) return "#e74c3c";
+  if (p <= 50) return "#f39c12";
+  return "#2ecc71";
+}
+function classeSaldo(s) {
+  const p = pct(s);
+  if (p <= 0)  return "zerado";
+  if (p <= 20) return "critico";
+  return "";
+}
+function posIcon(p) { return {"Goleiro":"🧤","Fixo":"🧱","Ala":"⚡","Pivô":"🎯"}[p]||"⚽"; }
+function bpClass(p) { return {"Goleiro":"bp-goleiro","Fixo":"bp-fixo","Ala":"bp-ala","Pivô":"bp-pivo"}[p]||""; }
+
+function setConn(ok) {
+  const d = document.getElementById("conn-dot");
+  if (d) d.className = "conn-dot" + (ok ? "" : " off");
+}
+
+function calcAssinaturaEstado() {
+  const saldos = estado.craques.map(c => `${c.id}:${c.saldo}`).join("|");
+  const topo = estado.compras[0] ? estado.compras[0].id : 0;
+  return `${saldos}#${estado.compras.length}#${topo}`;
+}
+
+function proximoIntervalo() {
+  if (document.hidden) return 12000;
+  return modoPerformance ? 8000 : POLL;
+}
+
+function agendarProximaCarga() {
+  clearTimeout(pollTimer);
+  pollTimer = setTimeout(carregar, proximoIntervalo());
+}
+
+// ── Carregar ──────────────────────────────────
+async function carregar() {
+  if (carregandoAgora) return;
+  carregandoAgora = true;
+  try {
+    const [rc, rh] = await Promise.all([fetch("/api/craques"), fetch("/api/compras")]);
+    if (!rc.ok || !rh.ok) throw new Error();
+    estado.craques = await rc.json();
+    estado.compras = await rh.json();
+
+    const novaAssinatura = calcAssinaturaEstado();
+    if (novaAssinatura === assinaturaEstado) {
+      setConn(true);
+      return;
+    }
+    assinaturaEstado = novaAssinatura;
+
+    // Permite notificar a primeira compra real após um período sem compras.
+    if (estado.compras.length === 0) {
+      viuTelaSemCompras = true;
+    }
+
+    const nova = estado.compras[0];
+    if (nova && nova.id !== ultimaId) {
+      if (ultimaId !== null || viuTelaSemCompras) exibirNotif(nova);
+      ultimaId = nova.id;
+    }
+
+    renderGrid();
+    renderRanking();
+    renderFeed();
+    renderStats();
+    setConn(true);
+  } catch { setConn(false); }
+  finally {
+    carregandoAgora = false;
+    agendarProximaCarga();
+  }
+}
+
+// ── Stats ─────────────────────────────────────
+function renderStats() {
+  const c = estado.craques; if (!c.length) return;
+  const totalGasto = c.reduce((a,x) => a+(SALDO_INICIAL-x.saldo), 0);
+  const totalJog   = estado.compras.length;
+  const lider      = c.reduce((a,b) => a.saldo>b.saldo?a:b);
+  const media      = Math.round(c.reduce((a,x)=>a+x.saldo,0)/c.length);
+  const s = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+  s("stat-total-gastos",    fmt(totalGasto));
+  s("stat-total-jogadores", totalJog);
+  s("stat-media-saldo",     fmt(media));
+  s("stat-lider",           totalJog > 0 ? `${lider.nome} (${lider.selecao})` : "—");
+}
+
+// ── Grid ──────────────────────────────────────
+function renderGrid() {
+  const grid = document.getElementById("grid"); if (!grid) return;
+
+  // Overlay
+  const ag = document.getElementById("aguardando");
+  if (ag) ag.classList.toggle("oculto", estado.compras.length > 0);
+
+  // Agrupar compras por craque
+  const jogMap = {};
+  estado.compras.forEach(c => {
+    if (!jogMap[c.craque_id]) jogMap[c.craque_id] = [];
+    jogMap[c.craque_id].push(c);
+  });
+
+  grid.innerHTML = estado.craques.map(cr => {
+    const p     = pct(cr.saldo);
+    const cor   = corSaldo(cr.saldo);
+    const cls   = classeSaldo(cr.saldo);
+    const jogs  = (jogMap[cr.id] || []).slice().reverse();
+    const gasto = SALDO_INICIAL - cr.saldo;
+
+    const jogHTML = jogs.length === 0
+      ? `<div class="jog-vazio">Nenhum jogador ainda</div>`
+      : jogs.map((j, i) => `
+          <div class="jog-item${i===0 && ultimaId !== null ? " novo" : ""}">
+            <span class="jog-nome">
+              <span class="bp ${bpClass(j.posicao)}">${j.posicao||""}</span>
+              ${j.jogador}
+            </span>
+            <span class="jog-val">${fmt(j.valor)}</span>
+          </div>`).join("");
+
+    return `
+      <div class="card ${cls}" style="--cor-sel:${cr.cor};--cor-sec:${cr.cor_sec}">
+        <div class="card-top">
+          <div class="card-brasao">
+            <img src="${cr.bandeira}" alt="${cr.selecao}" loading="lazy" decoding="async" onerror="this.style.display='none'" />
+          </div>
+          <div class="card-meta">
+            <div class="card-nome">${cr.nome}</div>
+            <div class="card-selecao">${cr.selecao}</div>
+          </div>
+          <!-- Saldo removido do telão -->
+        </div>
+        <div class="card-elenco">
+          <div class="elenco-header">
+            <span>Elenco (${jogs.length})</span>
+            <span class="elenco-gasto">${fmt(gasto)} gastos</span>
+          </div>
+          <div>${jogHTML}</div>
+        </div>
+      </div>`;
+  }).join("");
+
+  iniciarAutoScrollElencos();
+}
+
+function iniciarAutoScrollElencos() {
+  clearInterval(elencoScrollTimer);
+
+  const listas = Array.from(document.querySelectorAll(".card-elenco"));
+  if (!listas.length) return;
+
+  elencoScrollTimer = setInterval(() => {
+    for (const lista of listas) {
+      if (lista.scrollHeight <= lista.clientHeight + 8) continue;
+      const noFim = (lista.scrollTop + lista.clientHeight) >= (lista.scrollHeight - 6);
+      if (noFim) {
+        lista.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        lista.scrollBy({ top: 28, behavior: "smooth" });
+      }
+    }
+  }, modoPerformance ? 3000 : 2200);
+}
+
+// ── Ranking ───────────────────────────────────
+function renderRanking() {
+  const el = document.getElementById("rank-items"); if (!el) return;
+  const ord = [...estado.craques].sort((a,b) => b.saldo-a.saldo);
+  const med = ["🥇","🥈","🥉"];
+  el.innerHTML = `<div style="display:flex;gap:5px">` +
+    ord.map((cr,i) => {
+      const cor = corSaldo(cr.saldo);
+      return `<div class="rank-item">
+        <span class="rank-med">${med[i]||(i+1)+"º"}</span>
+        <img class="rank-brasao" src="${cr.bandeira}" alt="${cr.selecao}" loading="lazy" decoding="async" onerror="this.style.display='none'" />
+        <span class="rank-nome">${cr.nome}</span>
+        <span class="rank-saldo" style="color:${cor}">${fmt(cr.saldo)}</span>
+      </div>`;
+    }).join("") + `</div>`;
+}
+
+// ── Feed ──────────────────────────────────────
+function renderFeed() {
+  const el = document.getElementById("feed-items"); if (!el) return;
+  const ultimas = estado.compras.slice(0, 5);
+  if (!ultimas.length) {
+    el.innerHTML = `<span class="feed-vazio">Aguardando compras...</span>`;
+    return;
+  }
+  el.innerHTML = ultimas.map((h,i) => `
+    <div class="feed-item${i===0?" novo":""}">
+      <img class="feed-brasao" src="${h.bandeira}" alt="${h.craque}" loading="lazy" decoding="async" onerror="this.style.display='none'" />
+      <span class="feed-craque">${h.craque}</span>
+      <span class="feed-jog">${posIcon(h.posicao)} ${h.jogador}</span>
+      <span class="feed-val">${fmt(h.valor)}</span>
+    </div>`).join("");
+}
+
+// ── Notificação ───────────────────────────────
+function exibirNotif(compra) {
+  const cr = estado.craques.find(c => c.id === compra.craque_id);
+  const o  = document.getElementById("notif-overlay");
+
+  document.getElementById("notif-flag").innerHTML   = cr ? `<img src="${cr.bandeira}" alt="${cr.selecao}" loading="lazy" decoding="async" style="width:64px;height:64px;object-fit:contain" onerror="this.style.display='none'" />` : "⚽";
+  document.getElementById("notif-craque").textContent  = compra.craque;
+  document.getElementById("notif-selecao").textContent = cr ? `${cr.selecao}` : "";
+  document.getElementById("notif-jog").textContent     = compra.jogador;
+  document.getElementById("notif-pos").textContent     = `${posIcon(compra.posicao)} ${compra.posicao||""}`;
+  document.getElementById("notif-val").textContent     = fmt(compra.valor);
+
+  const fill = document.getElementById("notif-fill");
+  fill.style.animation = "none"; fill.offsetHeight; fill.style.animation = "";
+
+  o.classList.add("ativo");
+  clearTimeout(notifTimer);
+  notifTimer = setTimeout(() => o.classList.remove("ativo"), 3500);
+}
+
+carregar();
+document.addEventListener("visibilitychange", agendarProximaCarga);
+
+// ════════════════════════════════════════════
+//  APRESENTAÇÃO FINAL
+// ════════════════════════════════════════════
+let modoApresentacao = false;
+let apresIdx = 0;
+let apresTimer = null;
+const SECS_APRES = modoPerformance ? 5 : 7;
+
+// ── Animação de abertura do leilão ────────────────────
+function mostrarAnimacaoAbertura() {
+  const overlay = document.createElement("div");
+  overlay.id = "abertura-overlay";
+  overlay.style.cssText = `
+    position: fixed; inset: 0; z-index: 999;
+    background: linear-gradient(135deg, #0033A0, #006400, #E8003D);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 20px;
+    animation: abrirFade 0.8s ease-out;
+  `;
+  
+  const titulo = document.createElement("div");
+  titulo.style.cssText = `
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 120px; letter-spacing: 8px;
+    color: #FFD100; text-shadow: 0 0 60px rgba(255,209,0,0.8);
+    text-transform: uppercase;
+    animation: titlePop 0.5s cubic-bezier(0.34,2,0.64,1) 0.2s both;
+  `;
+  titulo.textContent = "⚽ LEILÃO ABERTO ⚽";
+  
+  const subtext = document.createElement("div");
+  subtext.style.cssText = `
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 32px; letter-spacing: 4px;
+    color: white; text-transform: uppercase;
+    animation: fadeIn 0.6s ease 0.6s both;
+  `;
+  subtext.textContent = "Prepare-se para o espetáculo";
+  
+  overlay.appendChild(titulo);
+  overlay.appendChild(subtext);
+  document.body.appendChild(overlay);
+  
+  // Remove a animação após 2s
+  setTimeout(() => {
+    overlay.style.animation = "abrirFade 0.6s ease-in reverse";
+    setTimeout(() => overlay.remove(), 600);
+  }, 2000);
+}
+
+// Escuta comando do admin via polling
+let modoFinalAtivo = false;
+let leilaoIniciado = false;
+async function verificarModoFinal() {
+  try {
+    const r = await fetch("/api/status");
+    if (!r.ok) return;
+    const d = await r.json();
+    if (d.iniciado && !leilaoIniciado) {
+      leilaoIniciado = true;
+      mostrarAnimacaoAbertura();
+      document.getElementById("aguardando").classList.add("oculto");
+    }
+    if (d.finalizado && !modoFinalAtivo) {
+      modoFinalAtivo = true;
+      setTimeout(() => iniciarApresentacao(), 800);
+    }
+  } catch {}
+}
+setInterval(verificarModoFinal, modoPerformance ? 5000 : 3000);
+
+function criarParticulas() {
+  if (modoPerformance) return;
+  const container = document.getElementById("apres-particles");
+  if (!container) return;
+  container.innerHTML = "";
+  const cores = ["#FFD100","#FFFFFF","#74ACDF","#E8003D","#FF6600"];
+  for (let i = 0; i < 28; i++) {
+    const p = document.createElement("div");
+    p.className = "apres-particle";
+    const size = Math.random() * 5 + 2;
+    const cor  = cores[Math.floor(Math.random()*cores.length)];
+    p.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      bottom:-5%;
+      background:${cor};
+      animation-duration:${4+Math.random()*7}s;
+      animation-delay:${Math.random()*5}s;
+    `;
+    container.appendChild(p);
+  }
+  // Raios de luz
+  const raysEl = document.getElementById("apres-rays");
+  if (raysEl) {
+    raysEl.innerHTML = "";
+    for (let i = 0; i < 8; i++) {
+      const r = document.createElement("div");
+      r.className = "apres-ray";
+      const startRot = i * 45;
+      r.style.cssText = `
+        left:50%; width:${1+Math.random()*2}px;
+        transform: rotate(${startRot}deg);
+        --rot-end: rotate(${startRot+40}deg);
+        animation-duration:${3+Math.random()*3}s;
+        animation-delay:${Math.random()*2}s;
+        opacity:0.15;
+      `;
+      raysEl.appendChild(r);
+    }
+  }
+}
+
+function criarFogos() {
+  if (modoPerformance) return;
+  const container = document.getElementById("enc-fogos");
+  if (!container) return;
+  container.innerHTML = "";
+  const cores = ["#FFD100","#E8003D","#0033A0","#2ecc71","#FF6600","#FFFFFF","#FF69B4","#00FFFF"];
+
+  function dispararFogo(delay) {
+    const x = 10 + Math.random() * 80;
+    const y = 5  + Math.random() * 60;
+    const cor = cores[Math.floor(Math.random()*cores.length)];
+    const size = 80 + Math.random() * 120;
+    const dur  = 0.6 + Math.random() * 0.4;
+
+    // Burst central
+    const burst = document.createElement("div");
+    burst.className = "enc-fogo-burst";
+    burst.style.cssText = `
+      left:${x}%; top:${y}%;
+      width:${size}px; height:${size}px;
+      margin-left:-${size/2}px; margin-top:-${size/2}px;
+      background: radial-gradient(circle, ${cor} 0%, transparent 70%);
+      animation-duration:${dur}s;
+      animation-delay:${delay}s;
+      box-shadow: 0 0 ${size/2}px ${cor};
+    `;
+    container.appendChild(burst);
+
+    // Sparks
+    for (let s = 0; s < 12; s++) {
+      const spark = document.createElement("div");
+      spark.className = "enc-fogo-spark";
+      const angle = (s / 12) * 360;
+      const dist  = 60 + Math.random() * 80;
+      const tx = Math.cos(angle*Math.PI/180) * dist;
+      const ty = Math.sin(angle*Math.PI/180) * dist;
+      const sSize = 3 + Math.random() * 5;
+      spark.style.cssText = `
+        left:${x}%; top:${y}%;
+        width:${sSize}px; height:${sSize}px;
+        margin-left:-${sSize/2}px; margin-top:-${sSize/2}px;
+        background:${cor};
+        --tx:${tx}px; --ty:${ty}px;
+        animation-duration:${dur*1.5}s;
+        animation-delay:${delay}s;
+        box-shadow: 0 0 6px ${cor};
+      `;
+      container.appendChild(spark);
+    }
+  }
+
+  // Disparar fogos em sequência
+  const totalFogos = 20;
+  for (let i = 0; i < totalFogos; i++) {
+    dispararFogo(0.3 + i * 0.25);
+  }
+  // Fogos em loop
+  setTimeout(() => {
+    setInterval(() => dispararFogo(0), 400);
+  }, totalFogos * 250 + 500);
+}
+
+function criarConfetes() {
+  if (modoPerformance) return;
+  const container = document.getElementById("enc-confetes");
+  if (!container) return;
+  container.innerHTML = "";
+  const cores = ["#FFD100","#E8003D","#0033A0","#2ecc71","#FF6600","#FFFFFF","#6B1FA8","#FF69B4","#00FFCC"];
+  const formas = ["50%","2px","0"]; // círculo, retângulo, triângulo
+
+  for (let i = 0; i < 100; i++) {
+    const c = document.createElement("div");
+    c.className = "enc-confete";
+    const cor  = cores[Math.floor(Math.random()*cores.length)];
+    const w    = 6 + Math.random()*8;
+    const h    = 4 + Math.random()*10;
+    const rotEnd = 360 + Math.random()*720;
+    c.style.cssText = `
+      left:${Math.random()*105-2}%;
+      background:${cor};
+      width:${w}px; height:${h}px;
+      border-radius:${formas[Math.floor(Math.random()*formas.length)]};
+      animation-duration:${2+Math.random()*4}s;
+      animation-delay:${Math.random()*4}s;
+      --rot-end:${rotEnd}deg;
+      box-shadow: 0 0 4px rgba(255,255,255,0.3);
+    `;
+    container.appendChild(c);
+  }
+
+  // Logos com delay escalonado
+  const logos = document.getElementById("enc-logos");
+  if (logos) {
+    logos.innerHTML = estado.craques.map((cr, i) =>
+      `<img class="enc-logo-img" src="${cr.bandeira}" alt="${cr.selecao}" loading="lazy" decoding="async"
+        style="animation-delay:${2.4 + i*0.1}s"
+        onerror="this.style.display='none'" />`
+    ).join("");
+  }
+}
+
+function iniciarApresentacao() {
+  modoApresentacao = true;
+  apresIdx = 0;
+  criarParticulas();
+  document.getElementById("apresentacao-overlay").classList.add("ativo");
+
+  mostrarApres(0);
+}
+
+function dispararFlashApresentacao() {
+  const overlay = document.getElementById("apresentacao-overlay");
+  if (!overlay) return;
+  overlay.classList.remove("flash");
+  overlay.offsetHeight;
+  overlay.classList.add("flash");
+}
+
+function mostrarApres(idx) {
+  if (!modoApresentacao) return;
+  const cr = estado.craques[idx];
+  if (!cr) return;
+
+  const jogs  = estado.compras.filter(c => c.craque_id === cr.id).reverse();
+  const gasto = SALDO_INICIAL - cr.saldo;
+  dispararFlashApresentacao();
+
+  // ── Técnica correta: substituir o card inteiro no DOM
+  // Isso força o browser a re-disparar TODAS as animações CSS do zero
+  const overlay = document.getElementById("apresentacao-overlay");
+  const oldCard = overlay.querySelector(".apres-card");
+
+  const jogHTML = jogs.length === 0
+    ? `<div class="apres-vazio">Nenhum jogador comprado</div>`
+    : jogs.map((j,i) => `
+        <div class="apres-jog" style="animation-delay:${0.85 + i*0.08}s">
+          <span class="apres-jog-nome">
+            <span class="bp ${bpClass(j.posicao)}">${j.posicao||""}</span>
+            ${j.jogador}
+          </span>
+          <span class="apres-jog-val">${fmt(j.valor)}</span>
+        </div>`).join("");
+
+  const dotsHTML = estado.craques.map((_,i) =>
+    `<div class="apres-dot${i===idx?" ativo":""}"></div>`
+  ).join("");
+
+  const newCard = document.createElement("div");
+  newCard.className = "apres-card";
+  newCard.innerHTML = `
+    <div class="apres-header">
+      <div class="apres-titulo-geral">⚽ COPA UNASP 2026 — ELENCO FINAL</div>
+      <div class="apres-brasao-wrap">
+        <div class="apres-brasao-glow"></div>
+        <img class="apres-brasao" src="${cr.bandeira}" alt="${cr.selecao}" loading="lazy" decoding="async" onerror="this.style.display='none'" />
+      </div>
+      <div class="apres-nome">${cr.nome}</div>
+      <div class="apres-selecao">${cr.selecao}</div>
+      <div class="apres-chamada">Plantel Oficial Definido</div>
+      <div class="apres-linha"></div>
+    </div>
+    <div class="apres-elenco">
+      <div class="apres-elenco-titulo">
+        <span>Elenco (${jogs.length})</span>
+        <span style="color:var(--vermelho)">${fmt(gasto)} gastos</span>
+      </div>
+      <div>${jogHTML}</div>
+    </div>
+    <div class="apres-nav">
+      <div class="apres-dots">${dotsHTML}</div>
+    </div>
+    <div class="apres-progress">
+      <div class="apres-progress-fill drenando" style="--ap-dur:${SECS_APRES}s"></div>
+    </div>
+  `;
+
+  if (oldCard) overlay.replaceChild(newCard, oldCard);
+  else overlay.appendChild(newCard);
+
+  clearTimeout(apresTimer);
+  apresTimer = setTimeout(() => {
+    if (idx + 1 < estado.craques.length) {
+      mostrarApres(idx + 1);
+    } else {
+      overlay.classList.remove("ativo");
+      setTimeout(() => {
+        criarConfetes();
+        criarFogos();
+        document.getElementById("enc-screen").classList.add("ativo");
+      }, 700);
+    }
+  }, SECS_APRES * 1000);
+}
+
+// ════════════════════════════════════════════
+//  INDICADOR DE COMPRA NO CARD
+// ════════════════════════════════════════════
+let ultimaCompraCard = null;
+function destacarCardCompra(craqueId) {
+  const cards = document.querySelectorAll(".card");
+  estado.craques.forEach((cr, i) => {
+    if (cr.id === craqueId && cards[i]) {
+      cards[i].classList.remove("compra-recente");
+      cards[i].offsetHeight;
+      cards[i].classList.add("compra-recente");
+      setTimeout(() => cards[i].classList.remove("compra-recente"), 4000);
+    }
+  });
+}
+
+// Integrar com o loop principal
+(function() {
+  const orig = window.carregar || carregar;
+  // Hook nova compra para destacar card
+  const origRenderGrid = renderGrid;
+  window.renderGrid = function() {
+    const nova = estado.compras[0];
+    if (nova && nova.id !== ultimaCompraCard) {
+      if (ultimaCompraCard !== null) {
+        destacarCardCompra(nova.craque_id);
+      }
+      ultimaCompraCard = nova.id;
+    }
+    origRenderGrid();
+  };
+  renderGrid = window.renderGrid;
+})();
+</script>
+</body>
+</html>
