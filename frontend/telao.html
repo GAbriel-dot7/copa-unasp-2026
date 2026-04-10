@@ -171,9 +171,9 @@
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       grid-template-rows: repeat(2, 1fr);
-      gap: 32px;
-      width: 90vw;
-      height: 80vh;
+      gap: 18px;
+      width: 85vw;
+      height: 60vh;
       margin: 0 auto;
       justify-content: center;
       align-items: center;
@@ -194,16 +194,18 @@
     .card {
       background: linear-gradient(165deg, rgba(255,255,255,0.05), rgba(13,18,48,0.96));
       border: 1.5px solid rgba(255,255,255,0.16);
-      border-radius: 18px;
+      border-radius: 16px;
       overflow: hidden;
       display: flex; flex-direction: column;
       position: relative;
-      box-shadow: 0 16px 44px rgba(0,0,0,0.45);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.28);
       transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
       isolation: isolate;
       min-width: 0;
       min-height: 0;
-      font-size: 1.35em;
+      font-size: 1.05em;
+      max-width: 340px;
+      margin: 0 auto;
     }
     .card::after {
       content: '';
@@ -237,14 +239,14 @@
     /* Topo do cartão: brasão + nome + saldo */
     .card-top {
       flex-shrink: 0;
-      padding: 18px 22px 12px 22px;
-      display: flex; align-items: center; gap: 18px;
+      padding: 12px 14px 8px 14px;
+      display: flex; align-items: center; gap: 12px;
       border-bottom: 1.5px solid var(--borda);
       background: rgba(255,255,255,0.06);
-      backdrop-filter: blur(8px);
+      backdrop-filter: blur(6px);
     }
     .card-brasao {
-      width: 60px; height: 60px; flex-shrink: 0;
+      width: 44px; height: 44px; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
     }
     .card-brasao img {
@@ -253,17 +255,28 @@
     .card-meta { flex: 1; min-width: 0; }
     .card-nome {
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 2.1em; font-weight: 900; letter-spacing: 1.2px;
+      font-size: 1.7em;
+      font-weight: 900;
+      letter-spacing: 1.1px;
       color: white;
       white-space: normal;
-      overflow: visible;
-      text-overflow: unset;
+      overflow: hidden;
+      text-overflow: ellipsis;
       word-break: break-word;
-      text-align: left;
+      text-align: center;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      max-height: 2.4em;
+      line-height: 1.2em;
+      margin-bottom: 2px;
     }
     .card-selecao {
-      font-size: 1.1em; color: var(--muted);
-      letter-spacing: 1.5px; text-transform: uppercase;
+      font-size: 1em;
+      color: var(--muted);
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      text-align: center;
     }
     .card-saldo-wrap { flex-shrink: 0; text-align: right; }
     .card-saldo {
