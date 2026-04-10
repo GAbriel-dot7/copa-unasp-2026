@@ -254,7 +254,12 @@
     .card-nome {
       font-family: 'Barlow Condensed', sans-serif;
       font-size: 2.1em; font-weight: 900; letter-spacing: 1.2px;
-      color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      color: white;
+      white-space: normal;
+      overflow: visible;
+      text-overflow: unset;
+      word-break: break-word;
+      text-align: left;
     }
     .card-selecao {
       font-size: 1.1em; color: var(--muted);
@@ -1183,12 +1188,10 @@ function renderGrid() {
             <div class="card-nome">${cr.nome}</div>
             <div class="card-selecao">${cr.selecao}</div>
           </div>
-          <!-- Saldo removido do telão -->
         </div>
         <div class="card-elenco">
           <div class="elenco-header">
             <span>Elenco (${jogs.length})</span>
-            <span class="elenco-gasto">${fmt(gasto)} gastos</span>
           </div>
           <div>${jogHTML}</div>
         </div>
