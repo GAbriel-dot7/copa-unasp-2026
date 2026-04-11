@@ -149,13 +149,13 @@
     }
     .stat {
       flex: 1; text-align: center;
-      padding: 6px 12px;
+      padding: 4px 10px;
       border-right: 1px solid var(--borda);
     }
     .stat:last-child { border-right: none; }
     .stat-val {
       display: block; font-family: 'Bebas Neue', sans-serif;
-      font-size: 22px; color: var(--amarelo); line-height: 1;
+      font-size: 18px; color: var(--amarelo); line-height: 1;
       text-shadow: 0 0 14px rgba(255,209,0,0.28);
     }
     .stat-lbl {
@@ -169,15 +169,15 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 10px 20px;
+      justify-content: flex-start;
+      padding: 4px 16px;
       position: relative;
       overflow: hidden;
     }
     .grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 14px 16px;
+      gap: 6px 10px;
       width: 100%;
       max-width: 1600px;
       margin: 0 auto;
@@ -188,15 +188,19 @@
     .grid-row-bottom {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 14px 16px;
+      gap: 6px 10px;
       width: 75%;
       max-width: 1200px;
-      margin: 14px auto 0;
+      margin: 4px auto 0;
       justify-items: center;
     }
     #grid-wrapper {
       width: 100%;
       max-width: 1600px;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
     }
 
     /* ── Cartão ──────────────────────────────────── */
@@ -249,14 +253,14 @@
     /* Topo do cartão: brasão + nome + saldo */
     .card-top {
       flex-shrink: 0;
-      padding: 10px 12px 8px 12px;
-      display: flex; align-items: center; gap: 10px;
+      padding: 5px 8px 4px 8px;
+      display: flex; align-items: center; gap: 6px;
       border-bottom: 1.5px solid var(--borda);
       background: rgba(255,255,255,0.06);
       backdrop-filter: blur(6px);
     }
     .card-brasao {
-      width: 38px; height: 38px; flex-shrink: 0;
+      width: 28px; height: 28px; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
     }
     .card-brasao img {
@@ -295,12 +299,12 @@
 
     /* Seção de saldo dentro do card */
     .card-saldo-section {
-      padding: 8px 12px;
+      padding: 3px 8px;
       border-bottom: 1px solid var(--borda);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 6px;
     }
     .card-saldo-info {
       display: flex;
@@ -315,7 +319,7 @@
     }
     .card-saldo-valor {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(22px, 2.2vw, 30px);
+      font-size: clamp(16px, 1.6vw, 22px);
       line-height: 1;
       letter-spacing: 1px;
       transition: color 0.5s;
@@ -351,11 +355,11 @@
       flex: 1;
       min-height: 0;
       overflow-y: auto;
-      padding: 8px 10px;
+      padding: 2px 6px;
       scrollbar-width: thin;
       scrollbar-color: rgba(255,209,0,0.4) rgba(255,255,255,0.05);
-      font-size: 0.95em;
-      max-height: 140px;
+      font-size: 0.82em;
+      max-height: clamp(40px, 6vh, 80px);
       scroll-behavior: smooth;
     }
     .card-elenco::-webkit-scrollbar {
@@ -370,12 +374,12 @@
     @media (max-width: 1400px) {
       .grid {
         grid-template-columns: repeat(4, 1fr);
-        gap: 12px 14px;
+        gap: 8px 10px;
       }
       .grid-row-bottom {
-        gap: 12px 14px;
+        gap: 8px 10px;
       }
-      .card-elenco { max-height: 100px; }
+      .card-elenco { max-height: 80px; }
     }
 
     @media (max-width: 900px) {
