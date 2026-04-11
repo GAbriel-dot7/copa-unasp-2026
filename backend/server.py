@@ -10,6 +10,7 @@
 import sqlite3
 import json
 import os
+import re
 import threading
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
@@ -94,7 +95,7 @@ def json_response(handler, status, data):
     handler.send_header("Content-Length", len(body))
     handler.send_header("Cache-Control", "no-store")
     handler.send_header("Access-Control-Allow-Origin",  "*")
-    handler.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+    handler.send_header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
     handler.send_header("Access-Control-Allow-Headers", "Content-Type, X-Admin-Token")
     handler.end_headers()
     handler.wfile.write(body)
@@ -314,7 +315,7 @@ class LeilaoHandler(BaseHTTPRequestHandler):
     def do_OPTIONS(self):
         self.send_response(204)
         self.send_header("Access-Control-Allow-Origin",  "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Admin-Token")
         self.end_headers()
 
@@ -363,7 +364,6 @@ class LeilaoHandler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         path   = parsed.path.rstrip("/")
 
-        import re
         m = re.match(r"/api/compras/(\d+)$", path)
         if m:
             if not require_admin(self):

@@ -183,7 +183,7 @@ function renderHistorico(filtroNome = "todos") {
   if (filtroNome !== "todos") lista = lista.filter(h => h.craque === filtroNome);
 
   if (lista.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" class="vazio">Nenhuma compra registrada ainda</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" class="vazio">Nenhuma compra registrada ainda</td></tr>`;
     return;
   }
 
@@ -195,6 +195,8 @@ function renderHistorico(filtroNome = "todos") {
       <td><span class="badge-pos ${posClass(h.posicao)}">${h.posicao || "—"}</span></td>
       <td class="valor-cell">${fmt(h.valor)}</td>
       <td class="hora-cell">${horaStr(h.timestamp)}</td>
+      <td></td>
+      <td><button class="btn-desfazer" onclick="desfazerCompra(${h.id}, '${h.jogador.replace(/'/g, "\\'")}')">Desfazer</button></td>
     </tr>`).join("");
 }
 
