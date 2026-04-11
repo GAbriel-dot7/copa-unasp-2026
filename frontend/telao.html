@@ -492,12 +492,34 @@
     }
 
     .footer-credit {
-      padding: 0 12px;
+      padding: 0 16px;
       border-left: 1px solid rgba(255,255,255,0.07);
       white-space: nowrap;
       align-self: stretch;
       display: flex;
       align-items: center;
+      flex-shrink: 0;
+    }
+    .footer-credit-text {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      transition: color 0.3s ease;
+    }
+    .footer-credit-text:hover {
+      color: rgba(255,255,255,0.6);
+    }
+    .footer-credit-text .credit-dot {
+      display: inline-block;
+      margin: 0 6px;
+      color: rgba(255,209,0,0.4);
+    }
+    .footer-credit-text .credit-names {
+      color: rgba(255,255,255,0.5);
+      font-weight: 700;
     }
 
     /* Ranking compacto */
@@ -1101,6 +1123,10 @@
       </div>
     </div>
 
+    <div class="footer-credit">
+      <span class="footer-credit-text"><span class="credit-dot">&middot;</span> Desenvolvido por <span class="credit-names">Robson &amp; Neo Lucca</span></span>
+    </div>
+
   </div>
 </div>
 
@@ -1298,11 +1324,8 @@ function renderGrid() {
   });
 
   function buildCard(cr) {
-    const p     = pct(cr.saldo);
-    const cor   = corSaldo(cr.saldo);
     const cls   = classeSaldo(cr.saldo);
     const jogs  = (jogMap[cr.id] || []).slice().reverse();
-    const gasto = SALDO_INICIAL - cr.saldo;
 
     const jogHTML = jogs.length === 0
       ? `<div class="jog-vazio">Nenhum jogador ainda</div>`
@@ -1326,22 +1349,9 @@ function renderGrid() {
             <div class="card-selecao">${cr.selecao}</div>
           </div>
         </div>
-        <div class="card-saldo-section">
-          <div class="card-saldo-info">
-            <span class="card-saldo-label">Saldo</span>
-            <span class="card-saldo-valor" style="color:${cor}">${fmt(cr.saldo)}</span>
-          </div>
-          <div class="card-barra-wrap">
-            <div class="card-barra-full">
-              <div class="bar-fill" style="width:${Math.max(0,p)}%;background:${cor}"></div>
-            </div>
-            <span class="card-saldo-pct">${p.toFixed(0)}%</span>
-          </div>
-        </div>
         <div class="card-elenco">
           <div class="elenco-header">
             <span>Elenco (${jogs.length})</span>
-            <span class="elenco-gasto">${fmt(gasto)}</span>
           </div>
           <div>${jogHTML}</div>
         </div>
@@ -1386,12 +1396,10 @@ function renderRanking() {
   const med = ["🥇","🥈","🥉"];
   el.innerHTML = `<div style="display:flex;gap:5px">` +
     ord.map((cr,i) => {
-      const cor = corSaldo(cr.saldo);
       return `<div class="rank-item">
         <span class="rank-med">${med[i]||(i+1)+"º"}</span>
         <img class="rank-brasao" src="${cr.bandeira}" alt="${cr.selecao}" loading="lazy" decoding="async" onerror="this.style.display='none'" />
         <span class="rank-nome">${cr.nome}</span>
-        <span class="rank-saldo" style="color:${cor}">${fmt(cr.saldo)}</span>
       </div>`;
     }).join("") + `</div>`;
 }
