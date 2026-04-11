@@ -1298,39 +1298,37 @@ function renderGrid() {
   });
 
   function buildCard(cr) {
-<<<<<<< HEAD
-=======
-        const cls   = classeSaldo(cr.saldo);
-        const jogs  = (jogMap[cr.id] || []).slice().reverse();
-        const jogHTML = jogs.length === 0
-          ? `<div class="jog-vazio">Nenhum jogador ainda</div>`
-          : jogs.map((j, i) => `
-              <div class="jog-item${i===0 && ultimaId !== null ? " novo" : ""}">
-                <span class="jog-nome">
-                  <span class="bp ${bpClass(j.posicao)}">${j.posicao||""}</span>
-                  ${j.jogador}
-                </span>
-                <span class="jog-val">${fmt(j.valor)}</span>
-              </div>`).join("");
+    const cls   = classeSaldo(cr.saldo);
+    const jogs  = (jogMap[cr.id] || []).slice().reverse();
+    const jogHTML = jogs.length === 0
+      ? `<div class="jog-vazio">Nenhum jogador ainda</div>`
+      : jogs.map((j, i) => `
+          <div class="jog-item${i===0 && ultimaId !== null ? " novo" : ""}">
+            <span class="jog-nome">
+              <span class="bp ${bpClass(j.posicao)}">${j.posicao||""}</span>
+              ${j.jogador}
+            </span>
+            <span class="jog-val">${fmt(j.valor)}</span>
+          </div>`).join("");
 
-        return `
-          <div class="card ${cls}" style="--cor-sel:${cr.cor};--cor-sec:${cr.cor_sec}">
-            <div class="card-top">
-              <div class="card-brasao">
-                <img src="${cr.bandeira}" alt="${cr.selecao}" loading="lazy" decoding="async" onerror="this.style.display='none'" />
-              </div>
-              <div class="card-meta">
-                <div class="card-nome">${cr.nome}</div>
-                <div class="card-selecao">${cr.selecao}</div>
-              </div>
-            </div>
-            <div class="card-elenco">
-              <div class="elenco-header">
-                <span>Elenco (${jogs.length})</span>
-              </div>
-              <div>${jogHTML}</div>
-            </div>
-          </div>`;
+    return `
+      <div class="card ${cls}" style="--cor-sel:${cr.cor};--cor-sec:${cr.cor_sec}">
+        <div class="card-top">
+          <div class="card-brasao">
+            <img src="${cr.bandeira}" alt="${cr.selecao}" loading="lazy" decoding="async" onerror="this.style.display='none'" />
+          </div>
+          <div class="card-meta">
+            <div class="card-nome">${cr.nome}</div>
+            <div class="card-selecao">${cr.selecao}</div>
+          </div>
+        </div>
+        <div class="card-elenco">
+          <div class="elenco-header">
+            <span>Elenco (${jogs.length})</span>
+          </div>
+          <div>${jogHTML}</div>
+        </div>
+      </div>`;
 // ── Ranking ───────────────────────────────────
 function renderRanking() {
   const el = document.getElementById("rank-items"); if (!el) return;
