@@ -1205,6 +1205,10 @@ function classeSaldo(s) {
 }
 function posIcon(p) { return {"Goleiro":"🧤","Fixo":"🧱","Ala":"⚡","Pivô":"🎯"}[p]||"⚽"; }
 function bpClass(p) { return {"Goleiro":"bp-goleiro","Fixo":"bp-fixo","Ala":"bp-ala","Pivô":"bp-pivo"}[p]||""; }
+function escHtml(str) {
+  if (typeof str !== "string") return "";
+  return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
 
 function setConn(ok) {
   const d = document.getElementById("conn-dot");
@@ -1298,39 +1302,55 @@ function renderGrid() {
   });
 
   function buildCard(cr) {
-<<<<<<< HEAD
-=======
-        const cls   = classeSaldo(cr.saldo);
-        const jogs  = (jogMap[cr.id] || []).slice().reverse();
-        const jogHTML = jogs.length === 0
-          ? `<div class="jog-vazio">Nenhum jogador ainda</div>`
-          : jogs.map((j, i) => `
-              <div class="jog-item${i===0 && ultimaId !== null ? " novo" : ""}">
-                <span class="jog-nome">
-                  <span class="bp ${bpClass(j.posicao)}">${j.posicao||""}</span>
-                  ${j.jogador}
-                </span>
-                <span class="jog-val">${fmt(j.valor)}</span>
-              </div>`).join("");
+    const cls   = classeSaldo(cr.saldo);
+    const jogs  = (jogMap[cr.id] || []).slice().reverse();
+    const jogHTML = jogs.length === 0
+      ? `<div class="jog-vazio">Nenhum jogador ainda</div>`
+      : jogs.map((j, i) => `
+          <div class="jog-item${i===0 && ultimaId !== null ? " novo" : ""}">
+            <span class="jog-nome">
+              <span class="bp ${bpClass(j.posicao)}">${escHtml(j.posicao)||""}</span>
+              ${escHtml(j.jogador)}
+            </span>
+            <span class="jog-val">${fmt(j.valor)}</span>
+          </div>`).join("");
 
-        return `
-          <div class="card ${cls}" style="--cor-sel:${cr.cor};--cor-sec:${cr.cor_sec}">
-            <div class="card-top">
-              <div class="card-brasao">
-                <img src="${cr.bandeira}" alt="${cr.selecao}" loading="lazy" decoding="async" onerror="this.style.display='none'" />
-              </div>
-              <div class="card-meta">
-                <div class="card-nome">${cr.nome}</div>
-                <div class="card-selecao">${cr.selecao}</div>
-              </div>
-            </div>
-            <div class="card-elenco">
-              <div class="elenco-header">
-                <span>Elenco (${jogs.length})</span>
-              </div>
-              <div>${jogHTML}</div>
-            </div>
-          </div>`;
+    return `
+      <div class="card ${cls}" style="--cor-sel:${cr.cor};--cor-sec:${cr.cor_sec}">
+        <div class="card-top">
+          <div class="card-brasao">
+            <img src="${escHtml(cr.bandeira)}" alt="${escHtml(cr.selecao)}" loading="lazy" decoding="async" onerror="this.style.display='none'" />
+          </div>
+          <div class="card-meta">
+            <div class="card-nome">${escHtml(cr.nome)}</div>
+            <div class="card-selecao">${escHtml(cr.selecao)}</div>
+          </div>
+        </div>
+        <div class="card-elenco">
+          <div class="elenco-header">
+            <span>Elenco (${jogs.length})</span>
+          </div>
+          <div>${jogHTML}</div>
+        </div>
+      </div>`;
+  }
+
+  const topIds    = estado.craques.slice(0, 4).map(c => c.id);
+  const bottomIds = estado.craques.slice(4).map(c => c.id);
+
+  grid.innerHTML = "";
+  estado.craques.filter(c => topIds.includes(c.id)).forEach(cr => {
+    grid.innerHTML += buildCard(cr);
+  });
+
+  if (gridBottom) {
+    gridBottom.innerHTML = "";
+    estado.craques.filter(c => bottomIds.includes(c.id)).forEach(cr => {
+      gridBottom.innerHTML += buildCard(cr);
+    });
+  }
+}
+
 // ── Ranking ───────────────────────────────────
 function renderRanking() {
   const el = document.getElementById("rank-items"); if (!el) return;
@@ -1340,8 +1360,8 @@ function renderRanking() {
     ord.map((cr,i) => {
       return `<div class="rank-item">
         <span class="rank-med">${med[i]||(i+1)+"º"}</span>
-        <img class="rank-brasao" src="${cr.bandeira}" alt="${cr.selecao}" loading="lazy" decoding="async" onerror="this.style.display='none'" />
-        <span class="rank-nome">${cr.nome}</span>
+        <img class="rank-brasao" src="${escHtml(cr.bandeira)}" alt="${escHtml(cr.selecao)}" loading="lazy" decoding="async" onerror="this.style.display='none'" />
+        <span class="rank-nome">${escHtml(cr.nome)}</span>
       </div>`;
     }).join("") + `</div>`;
 }
@@ -1356,9 +1376,9 @@ function renderFeed() {
   }
   el.innerHTML = ultimas.map((h,i) => `
     <div class="feed-item${i===0?" novo":""}">
-      <img class="feed-brasao" src="${h.bandeira}" alt="${h.craque}" loading="lazy" decoding="async" onerror="this.style.display='none'" />
-      <span class="feed-craque">${h.craque}</span>
-      <span class="feed-jog">${posIcon(h.posicao)} ${h.jogador}</span>
+      <img class="feed-brasao" src="${escHtml(h.bandeira)}" alt="${escHtml(h.craque)}" loading="lazy" decoding="async" onerror="this.style.display='none'" />
+      <span class="feed-craque">${escHtml(h.craque)}</span>
+      <span class="feed-jog">${posIcon(h.posicao)} ${escHtml(h.jogador)}</span>
       <span class="feed-val">${fmt(h.valor)}</span>
     </div>`).join("");
 }
@@ -1368,7 +1388,7 @@ function exibirNotif(compra) {
   const cr = estado.craques.find(c => c.id === compra.craque_id);
   const o  = document.getElementById("notif-overlay");
 
-  document.getElementById("notif-flag").innerHTML   = cr ? `<img src="${cr.bandeira}" alt="${cr.selecao}" loading="lazy" decoding="async" style="width:64px;height:64px;object-fit:contain" onerror="this.style.display='none'" />` : "⚽";
+  document.getElementById("notif-flag").innerHTML   = cr ? `<img src="${escHtml(cr.bandeira)}" alt="${escHtml(cr.selecao)}" loading="lazy" decoding="async" style="width:64px;height:64px;object-fit:contain" onerror="this.style.display='none'" />` : "⚽";
   document.getElementById("notif-craque").textContent  = compra.craque;
   document.getElementById("notif-selecao").textContent = cr ? `${cr.selecao}` : "";
   document.getElementById("notif-jog").textContent     = compra.jogador;
@@ -1593,7 +1613,7 @@ function criarConfetes() {
   const logos = document.getElementById("enc-logos");
   if (logos) {
     logos.innerHTML = estado.craques.map((cr, i) =>
-      `<img class="enc-logo-img" src="${cr.bandeira}" alt="${cr.selecao}" loading="lazy" decoding="async"
+      `<img class="enc-logo-img" src="${escHtml(cr.bandeira)}" alt="${escHtml(cr.selecao)}" loading="lazy" decoding="async"
         style="animation-delay:${2.4 + i*0.1}s"
         onerror="this.style.display='none'" />`
     ).join("");
@@ -1636,8 +1656,8 @@ function mostrarApres(idx) {
     : jogs.map((j,i) => `
         <div class="apres-jog" style="animation-delay:${0.85 + i*0.08}s">
           <span class="apres-jog-nome">
-            <span class="bp ${bpClass(j.posicao)}">${j.posicao||""}</span>
-            ${j.jogador}
+            <span class="bp ${bpClass(j.posicao)}">${escHtml(j.posicao)||""}</span>
+            ${escHtml(j.jogador)}
           </span>
           <span class="apres-jog-val">${fmt(j.valor)}</span>
         </div>`).join("");
@@ -1653,10 +1673,10 @@ function mostrarApres(idx) {
       <div class="apres-titulo-geral">⚽ COPA UNASP 2026 — ELENCO FINAL</div>
       <div class="apres-brasao-wrap">
         <div class="apres-brasao-glow"></div>
-        <img class="apres-brasao" src="${cr.bandeira}" alt="${cr.selecao}" loading="lazy" decoding="async" onerror="this.style.display='none'" />
+        <img class="apres-brasao" src="${escHtml(cr.bandeira)}" alt="${escHtml(cr.selecao)}" loading="lazy" decoding="async" onerror="this.style.display='none'" />
       </div>
-      <div class="apres-nome">${cr.nome}</div>
-      <div class="apres-selecao">${cr.selecao}</div>
+      <div class="apres-nome">${escHtml(cr.nome)}</div>
+      <div class="apres-selecao">${escHtml(cr.selecao)}</div>
       <div class="apres-chamada">Plantel Oficial Definido</div>
       <div class="apres-linha"></div>
     </div>

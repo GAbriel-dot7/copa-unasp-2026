@@ -469,7 +469,7 @@ let carregandoAdmin = false;
 let timerAdmin = null;
 
 function authHeaders(extra = {}) {
-  return { ...extra, "X-Admin-Token": adminToken };
+  return { ...extra, "Authorization": "Bearer " + adminToken };
 }
 
 function calcAssinaturaAdmin(craques, historico, status) {
@@ -538,13 +538,13 @@ function popularSelects() {
 
   sel.innerHTML = `<option value="">— Escolha o craque —</option>` +
     estado.craques.map(c =>
-      `<option value="${c.id}">${c.nome} — ${c.selecao}</option>`
+      `<option value="${c.id}">${escHtml(c.nome)} — ${escHtml(c.selecao)}</option>`
     ).join("");
   sel.value = prev;
 
   filt.innerHTML = `<option value="todos">Todos os craques</option>` +
     estado.craques.map(c =>
-      `<option value="${c.nome}">${c.nome} — ${c.selecao}</option>`
+      `<option value="${escHtml(c.nome)}">${escHtml(c.nome)} — ${escHtml(c.selecao)}</option>`
     ).join("");
 }
 
@@ -568,7 +568,7 @@ function atualizarInfoCraque() {
   if (!craqueAtivo || !estado.craques.length) { info.style.display = "none"; return; }
   const cr = estado.craques.find(c => c.id === craqueAtivo);
   if (!cr) { info.style.display = "none"; return; }
-  info.innerHTML = `<img src="${cr.bandeira}" style="width:18px;height:18px;object-fit:contain;vertical-align:middle;margin-right:6px"><strong>${cr.nome}</strong> (${cr.selecao}) — Saldo: <strong style="color:${corSaldo(cr.saldo)}">${fmt(cr.saldo)}</strong>`;
+  info.innerHTML = `<img src="${escHtml(cr.bandeira)}" style="width:18px;height:18px;object-fit:contain;vertical-align:middle;margin-right:6px"><strong>${escHtml(cr.nome)}</strong> (${escHtml(cr.selecao)}) — Saldo: <strong style="color:${corSaldo(cr.saldo)}">${fmt(cr.saldo)}</strong>`;
   info.style.display = "block";
 }
 
@@ -789,20 +789,32 @@ carregarDados();
 document.addEventListener("visibilitychange", agendarAdmin);
 
 // ── Login ─────────────────────────────────────────────────────
-const SENHA = "neorobson";
-
-function verificarSenha() {
+async function verificarSenha() {
   const input = document.getElementById("login-senha").value;
   const erro  = document.getElementById("login-erro");
-  if (input === SENHA) {
-    adminToken = input;
-    document.getElementById("login-overlay").classList.add("oculto");
-    erro.textContent = "";
-  } else {
-    adminToken = "";
-    erro.textContent = "⚠️ Senha incorreta!";
-    document.getElementById("login-senha").value = "";
-    document.getElementById("login-senha").focus();
+  if (!input) {
+    erro.textContent = "⚠️ Digite a senha.";
+    return;
+  }
+  try {
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ senha: input }),
+    });
+    const data = await res.json();
+    if (res.ok && data.token) {
+      adminToken = data.token;
+      document.getElementById("login-overlay").classList.add("oculto");
+      erro.textContent = "";
+    } else {
+      adminToken = "";
+      erro.textContent = "⚠️ " + (data.erro || "Senha incorreta!");
+      document.getElementById("login-senha").value = "";
+      document.getElementById("login-senha").focus();
+    }
+  } catch {
+    erro.textContent = "⚠️ Erro de conexão com o servidor.";
   }
 }
 

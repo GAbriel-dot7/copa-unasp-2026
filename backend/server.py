@@ -10,7 +10,9 @@
 import sqlite3
 import json
 import os
+import secrets
 import threading
+import time
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 from datetime import datetime
@@ -20,9 +22,17 @@ PORT        = int(os.environ.get("PORT", 3000))
 DB_PATH     = os.environ.get("DB_PATH", os.path.join(os.path.dirname(__file__), "database.db"))
 FRONTEND    = os.path.join(os.path.dirname(__file__), "..", "frontend")
 SALDO_INICIAL = 100_000
-ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN", "neorobson")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "neorobson")
+ALLOWED_ORIGIN = os.environ.get("ALLOWED_ORIGIN", "")  # e.g. https://your-app.up.railway.app
+MAX_FIELD_LEN = 100
+ALLOWED_POSITIONS = {"Goleiro", "Fixo", "Ala", "Pivô"}
 leilao_iniciado = False     # estado global do leilão
 leilao_finalizado = False   # estado global do leilão
+
+# ── Session tokens (in-memory) ───────────────────────────────
+active_sessions = {}        # token -> expiry timestamp
+SESSION_TTL = 86400         # 24 hours
+session_lock = threading.Lock()
 
 # ── Dados iniciais dos craques ────────────────────────────────
 CRAQUES_INICIAIS = [
@@ -86,22 +96,80 @@ def init_db():
     conn.close()
     print(f"  ✅ Banco de dados pronto: {DB_PATH}")
 
+# ── Session helpers ───────────────────────────────────────────
+def create_session():
+    """Create a new session token."""
+    token = secrets.token_hex(32)
+    with session_lock:
+        active_sessions[token] = time.time() + SESSION_TTL
+    return token
+
+def validate_session(token):
+    """Check if a session token is valid and not expired."""
+    with session_lock:
+        expiry = active_sessions.get(token)
+        if expiry is None:
+            return False
+        if time.time() > expiry:
+            del active_sessions[token]
+            return False
+        return True
+
+def cleanup_sessions():
+    """Remove expired sessions."""
+    now = time.time()
+    with session_lock:
+        expired = [k for k, v in active_sessions.items() if now > v]
+        for k in expired:
+            del active_sessions[k]
+
 # ── Helpers ───────────────────────────────────────────────────
+def cors_origin():
+    """Return the allowed CORS origin."""
+    return ALLOWED_ORIGIN if ALLOWED_ORIGIN else "*"
+
+def add_security_headers(handler):
+    """Add standard security headers to all responses."""
+    handler.send_header("X-Content-Type-Options", "nosniff")
+    handler.send_header("X-Frame-Options", "SAMEORIGIN")
+    handler.send_header("Referrer-Policy", "strict-origin-when-cross-origin")
+    handler.send_header("Content-Security-Policy",
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "font-src 'self' https://fonts.gstatic.com; "
+        "img-src 'self' data:; "
+        "connect-src 'self'")
+
+def sanitize_str(value, max_len=MAX_FIELD_LEN):
+    """Sanitize a string input: strip and truncate."""
+    if not isinstance(value, str):
+        return ""
+    value = value.strip()
+    if len(value) > max_len:
+        value = value[:max_len]
+    return value
+
 def json_response(handler, status, data):
     body = json.dumps(data, ensure_ascii=False, default=str).encode("utf-8")
     handler.send_response(status)
     handler.send_header("Content-Type",  "application/json; charset=utf-8")
     handler.send_header("Content-Length", len(body))
     handler.send_header("Cache-Control", "no-store")
-    handler.send_header("Access-Control-Allow-Origin",  "*")
-    handler.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-    handler.send_header("Access-Control-Allow-Headers", "Content-Type, X-Admin-Token")
+    handler.send_header("Access-Control-Allow-Origin",  cors_origin())
+    handler.send_header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
+    handler.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+    handler.send_header("Access-Control-Allow-Credentials", "true")
+    add_security_headers(handler)
     handler.end_headers()
     handler.wfile.write(body)
 
 def require_admin(handler):
-    token = handler.headers.get("X-Admin-Token", "")
-    if token != ADMIN_TOKEN:
+    auth = handler.headers.get("Authorization", "")
+    token = ""
+    if auth.startswith("Bearer "):
+        token = auth[7:]
+    if not validate_session(token):
         json_response(handler, 401, {"erro": "Não autorizado"})
         return False
     return True
@@ -129,6 +197,7 @@ def serve_file(handler, filepath):
             handler.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
         else:
             handler.send_header("Cache-Control", "public, max-age=604800, immutable")
+        add_security_headers(handler)
         handler.end_headers()
         handler.wfile.write(body)
     except FileNotFoundError:
@@ -165,6 +234,26 @@ def handle_get_compras(handler):
     conn.close()
     json_response(handler, 200, [dict(r) for r in rows])
 
+def handle_login(handler):
+    """Authenticate with password and return a session token."""
+    length = int(handler.headers.get("Content-Length", 0))
+    body   = handler.rfile.read(length)
+
+    try:
+        data = json.loads(body)
+    except Exception:
+        json_response(handler, 400, {"erro": "JSON inválido"})
+        return
+
+    password = data.get("senha", "")
+    if not isinstance(password, str) or password != ADMIN_PASSWORD:
+        json_response(handler, 401, {"erro": "Senha incorreta"})
+        return
+
+    cleanup_sessions()
+    token = create_session()
+    json_response(handler, 200, {"ok": True, "token": token})
+
 def handle_post_compra(handler):
     length = int(handler.headers.get("Content-Length", 0))
     body   = handler.rfile.read(length)
@@ -176,14 +265,25 @@ def handle_post_compra(handler):
         return
 
     craque_id   = data.get("craque_id")
-    jogador     = (data.get("jogador") or "").strip()
-    posicao     = (data.get("posicao") or "").strip()
+    jogador     = sanitize_str(data.get("jogador") or "")
+    posicao     = sanitize_str(data.get("posicao") or "")
     valor       = data.get("valor")
 
     # Validação de campos
     if not craque_id or not jogador or not posicao or not valor:
         json_response(handler, 400, {"erro": "Campos obrigatórios: craque_id, jogador, posicao, valor"})
         return
+
+    if posicao not in ALLOWED_POSITIONS:
+        json_response(handler, 400, {"erro": f"Posição inválida. Use: {', '.join(sorted(ALLOWED_POSITIONS))}"}) 
+        return
+
+    try:
+        craque_id = int(craque_id)
+    except (ValueError, TypeError):
+        json_response(handler, 400, {"erro": "craque_id deve ser um número inteiro"})
+        return
+
     try:
         valor = int(valor)
         if valor <= 0:
@@ -239,7 +339,8 @@ def handle_post_compra(handler):
         except Exception as e:
             conn.rollback()
             conn.close()
-            json_response(handler, 500, {"erro": f"Erro interno: {str(e)}"})
+            print(f"  ❌ Erro interno em POST /api/compras: {e}")
+            json_response(handler, 500, {"erro": "Erro interno do servidor"})
 
 def handle_get_status(handler):
     json_response(handler, 200, {"iniciado": leilao_iniciado, "finalizado": leilao_finalizado})
@@ -268,7 +369,7 @@ def handle_reset(handler):
     with db_lock:
         conn = get_db()
         conn.execute("DELETE FROM compras")
-        conn.execute(f"UPDATE craques SET saldo = {SALDO_INICIAL}")
+        conn.execute("UPDATE craques SET saldo = ?", (SALDO_INICIAL,))
         conn.commit()
         conn.close()
     json_response(handler, 200, {"ok": True, "mensagem": "Sistema resetado com sucesso"})
@@ -299,7 +400,8 @@ def handle_delete_compra(handler, compra_id):
         except Exception as e:
             conn.rollback()
             conn.close()
-            json_response(handler, 500, {"erro": str(e)})
+            print(f"  ❌ Erro interno em DELETE /api/compras: {e}")
+            json_response(handler, 500, {"erro": "Erro interno do servidor"})
 
 # ── Request Handler principal ─────────────────────────────────
 class LeilaoHandler(BaseHTTPRequestHandler):
@@ -313,9 +415,10 @@ class LeilaoHandler(BaseHTTPRequestHandler):
 
     def do_OPTIONS(self):
         self.send_response(204)
-        self.send_header("Access-Control-Allow-Origin",  "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Admin-Token")
+        self.send_header("Access-Control-Allow-Origin",  cors_origin())
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        self.send_header("Access-Control-Allow-Credentials", "true")
         self.end_headers()
 
     def do_GET(self):
@@ -378,6 +481,9 @@ class LeilaoHandler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         path   = parsed.path.rstrip("/")
 
+        if path == "/api/login":
+            handle_login(self)
+            return
         if path == "/api/compras":
             if not require_admin(self):
                 return

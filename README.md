@@ -101,7 +101,7 @@ O Railway oferece **$5 de crédito por mês** gratuitamente. Para um sistema lev
 
 ### Durante o leilão
 1. O operador abre o **admin** no celular ou computador
-2. Digita a senha: `neorobson`
+2. Digita a senha (padrão configurável via variável de ambiente `ADMIN_PASSWORD`)
 3. Seleciona o craque, digita o jogador, escolhe a posição e o valor
 4. Clica em **⚽ Registrar Compra**
 5. O telão atualiza automaticamente em até 6 segundos
@@ -218,9 +218,14 @@ SALDO_INICIAL = 100_000  # backend/server.py, linha 13
 
 ### Alterar a senha do admin
 
-```js
-const SENHA = "neorobson";  // frontend/admin.html, dentro do <script>
+Defina a variável de ambiente `ADMIN_PASSWORD` antes de iniciar o servidor:
+
+```bash
+export ADMIN_PASSWORD="sua-senha-segura"
+python3 backend/server.py
 ```
+
+> ⚠️ A senha padrão é apenas para desenvolvimento. Em produção, sempre configure `ADMIN_PASSWORD` com um valor forte.
 
 ### Alterar o intervalo de atualização
 
@@ -292,7 +297,7 @@ projeto/
 ## ✅ Checklist do Evento
 
 ### Dias antes
-- [ ] Testar login no admin com a senha `neorobson`
+- [ ] Testar login no admin com a senha configurada (variável `ADMIN_PASSWORD`)
 - [ ] Registrar compras de teste e verificar se o telão atualiza
 - [ ] Testar o botão "Desfazer" no histórico
 - [ ] Testar "Finalizar Leilão" e ver a apresentação completa
