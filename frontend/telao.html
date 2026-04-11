@@ -1,3 +1,44 @@
+    @media (max-width: 1200px) {
+      .grid {
+        gap: 18px;
+        width: 99vw;
+        max-width: 100vw;
+      }
+      .card {
+        max-width: 98vw;
+        font-size: 0.98em;
+      }
+      .card-elenco {
+        max-height: 180px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+      .card {
+        font-size: 0.92em;
+      }
+      .card-elenco {
+        max-height: 120px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      .card {
+        font-size: 0.85em;
+        max-width: 99vw;
+      }
+      .card-elenco {
+        max-height: 80px;
+      }
+    }
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -69,6 +110,7 @@
       width: 100vw; height: 100vh;
       display: flex; flex-direction: column;
       overflow: hidden;
+      font-size: clamp(14px, 1.5vw, 22px);
     }
 
     /* ── Header ──────────────────────────────────── */
@@ -169,14 +211,14 @@
     }
     .grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      grid-template-rows: repeat(2, 1fr);
-      gap: 18px;
-      width: 85vw;
-      height: 60vh;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      grid-auto-rows: 1fr;
+      gap: 32px;
+      width: 95vw;
+      max-width: 1800px;
       margin: 0 auto;
       justify-content: center;
-      align-items: center;
+      align-items: stretch;
       perspective: 1000px;
     }
 
@@ -203,9 +245,10 @@
       isolation: isolate;
       min-width: 0;
       min-height: 0;
-      font-size: 1.05em;
+      font-size: clamp(1em, 2vw, 1.25em);
       max-width: 340px;
       margin: 0 auto;
+      height: 100%;
     }
     .card::after {
       content: '';
@@ -255,24 +298,23 @@
     .card-meta { flex: 1; min-width: 0; }
     .card-nome {
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1.7em;
       font-weight: 900;
       letter-spacing: 1.1px;
       color: white;
       white-space: normal;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      word-break: break-word;
+      overflow-wrap: break-word;
       text-align: center;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      max-height: 2.4em;
-      line-height: 1.2em;
       margin-bottom: 2px;
+      font-size: clamp(1.1em, 2.2vw, 1.7em);
+      line-height: 1.1em;
+      max-height: 2.3em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
     }
     .card-selecao {
-      font-size: 1em;
+      font-size: clamp(0.9em, 1.5vw, 1.1em);
       color: var(--muted);
       letter-spacing: 1.2px;
       text-transform: uppercase;
@@ -296,10 +338,20 @@
       flex: 1; min-height: 0;
       overflow-y: auto;
       padding: 18px 18px 18px 18px;
-      scrollbar-width: none;
+      scrollbar-width: thin;
+      scrollbar-color: #FFD100 #222;
       font-size: 1.1em;
+      max-height: 260px;
+      scroll-behavior: smooth;
     }
-    .card-elenco::-webkit-scrollbar { display: none; }
+    .card-elenco::-webkit-scrollbar {
+      width: 8px;
+      background: #222;
+    }
+    .card-elenco::-webkit-scrollbar-thumb {
+      background: #FFD100;
+      border-radius: 8px;
+    }
 
     .elenco-header {
       font-family: 'Barlow Condensed', sans-serif;
@@ -312,12 +364,17 @@
     .elenco-gasto { color: var(--vermelho); }
 
     .jog-item {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 8px 12px; border-radius: 8px; margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
       background: rgba(255,255,255,0.07);
       border: 1.5px solid rgba(255,255,255,0.09);
-      font-size: 1.15em;
+      font-size: clamp(1em, 1.5vw, 1.15em);
       transition: background 0.2s;
+      min-height: 44px;
     }
     .jog-item.novo {
       background: rgba(255,209,0,0.08);
@@ -328,15 +385,26 @@
       100%{ box-shadow: 0 0 0 6px rgba(255,209,0,0); }
     }
     .jog-nome {
-      color: var(--texto); font-weight: 700;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      max-width: 70%;
-      font-size: 1.1em;
+      color: var(--texto);
+      font-weight: 700;
+      white-space: normal;
+      overflow-wrap: break-word;
+      max-width: 68%;
+      font-size: clamp(1em, 1.4vw, 1.1em);
+      line-height: 1.1em;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
     .jog-val {
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1.1em; font-weight: 700;
-      color: var(--amarelo); flex-shrink: 0;
+      font-size: clamp(1em, 1.3vw, 1.1em);
+      font-weight: 700;
+      color: var(--amarelo);
+      flex-shrink: 0;
+      margin-left: 10px;
+      text-align: right;
     }
     .jog-vazio {
       font-size: 10px; color: var(--muted);
