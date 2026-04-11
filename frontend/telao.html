@@ -1158,6 +1158,10 @@ function classeSaldo(s) {
 }
 function posIcon(p) { return {"Goleiro":"🧤","Fixo":"🧱","Ala":"⚡","Pivô":"🎯"}[p]||"⚽"; }
 function bpClass(p) { return {"Goleiro":"bp-goleiro","Fixo":"bp-fixo","Ala":"bp-ala","Pivô":"bp-pivo"}[p]||""; }
+function escHtml(str) {
+  if (typeof str !== "string") return "";
+  return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
 
 function setConn(ok) {
   const d = document.getElementById("conn-dot");
@@ -1261,8 +1265,8 @@ function renderGrid() {
       : jogs.map((j, i) => `
           <div class="jog-item${i===0 && ultimaId !== null ? " novo" : ""}">
             <span class="jog-nome">
-              <span class="bp ${bpClass(j.posicao)}">${j.posicao||""}</span>
-              ${j.jogador}
+              <span class="bp ${bpClass(j.posicao)}">${escHtml(j.posicao)||""}</span>
+              ${escHtml(j.jogador)}
             </span>
             <span class="jog-val">${fmt(j.valor)}</span>
           </div>`).join("");
@@ -1271,11 +1275,11 @@ function renderGrid() {
       <div class="card ${cls}" style="--cor-sel:${cr.cor};--cor-sec:${cr.cor_sec}">
         <div class="card-top">
           <div class="card-brasao">
-            <img src="${cr.bandeira}" alt="${cr.selecao}" loading="lazy" decoding="async" onerror="this.style.display='none'" />
+            <img src="${escHtml(cr.bandeira)}" alt="${escHtml(cr.selecao)}" loading="lazy" decoding="async" onerror="this.style.display='none'" />
           </div>
           <div class="card-meta">
-            <div class="card-nome">${cr.nome}</div>
-            <div class="card-selecao">${cr.selecao}</div>
+            <div class="card-nome">${escHtml(cr.nome)}</div>
+            <div class="card-selecao">${escHtml(cr.selecao)}</div>
           </div>
         </div>
         <div class="card-elenco">
@@ -1319,8 +1323,8 @@ function renderRanking() {
       const cor = corSaldo(cr.saldo);
       return `<div class="rank-item">
         <span class="rank-med">${med[i]||(i+1)+"º"}</span>
-        <img class="rank-brasao" src="${cr.bandeira}" alt="${cr.selecao}" loading="lazy" decoding="async" onerror="this.style.display='none'" />
-        <span class="rank-nome">${cr.nome}</span>
+        <img class="rank-brasao" src="${escHtml(cr.bandeira)}" alt="${escHtml(cr.selecao)}" loading="lazy" decoding="async" onerror="this.style.display='none'" />
+        <span class="rank-nome">${escHtml(cr.nome)}</span>
         <span class="rank-saldo" style="color:${cor}">${fmt(cr.saldo)}</span>
       </div>`;
     }).join("") + `</div>`;
@@ -1336,9 +1340,9 @@ function renderFeed() {
   }
   el.innerHTML = ultimas.map((h,i) => `
     <div class="feed-item${i===0?" novo":""}">
-      <img class="feed-brasao" src="${h.bandeira}" alt="${h.craque}" loading="lazy" decoding="async" onerror="this.style.display='none'" />
-      <span class="feed-craque">${h.craque}</span>
-      <span class="feed-jog">${posIcon(h.posicao)} ${h.jogador}</span>
+      <img class="feed-brasao" src="${escHtml(h.bandeira)}" alt="${escHtml(h.craque)}" loading="lazy" decoding="async" onerror="this.style.display='none'" />
+      <span class="feed-craque">${escHtml(h.craque)}</span>
+      <span class="feed-jog">${posIcon(h.posicao)} ${escHtml(h.jogador)}</span>
       <span class="feed-val">${fmt(h.valor)}</span>
     </div>`).join("");
 }
@@ -1348,7 +1352,7 @@ function exibirNotif(compra) {
   const cr = estado.craques.find(c => c.id === compra.craque_id);
   const o  = document.getElementById("notif-overlay");
 
-  document.getElementById("notif-flag").innerHTML   = cr ? `<img src="${cr.bandeira}" alt="${cr.selecao}" loading="lazy" decoding="async" style="width:64px;height:64px;object-fit:contain" onerror="this.style.display='none'" />` : "⚽";
+  document.getElementById("notif-flag").innerHTML   = cr ? `<img src="${escHtml(cr.bandeira)}" alt="${escHtml(cr.selecao)}" loading="lazy" decoding="async" style="width:64px;height:64px;object-fit:contain" onerror="this.style.display='none'" />` : "⚽";
   document.getElementById("notif-craque").textContent  = compra.craque;
   document.getElementById("notif-selecao").textContent = cr ? `${cr.selecao}` : "";
   document.getElementById("notif-jog").textContent     = compra.jogador;

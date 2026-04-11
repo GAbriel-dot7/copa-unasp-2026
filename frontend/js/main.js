@@ -15,6 +15,16 @@ const SALDO_INICIAL  = 100000;
 const POLL_INTERVAL  = 6000;   // ms
 
 // ── Utilitários ──────────────────────────────────────────────
+function escHtml(str) {
+  if (typeof str !== "string") return "";
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function fmt(valor) {
   return new Intl.NumberFormat("pt-BR").format(valor) + " cr";
 }
@@ -123,9 +133,9 @@ function renderCartoes(selecionadoId = null, onSelecionar = null) {
       ? `<p class="sem-jogadores">Nenhum jogador ainda</p>`
       : jogList.map(j => `
           <div class="jogador-item">
-            <span class="jogador-nome">${posIcon(j.posicao)} ${j.jogador}</span>
+            <span class="jogador-nome">${posIcon(j.posicao)} ${escHtml(j.jogador)}</span>
             <div class="jogador-right">
-              <span class="badge-pos ${posClass(j.posicao)}">${j.posicao || "—"}</span>
+              <span class="badge-pos ${posClass(j.posicao)}">${escHtml(j.posicao) || "—"}</span>
               <span class="jogador-valor">${fmt(j.valor)}</span>
             </div>
           </div>`).join("");
@@ -142,11 +152,11 @@ function renderCartoes(selecionadoId = null, onSelecionar = null) {
     card.innerHTML = `
       <div class="card-header">
         <div class="bandeira-circle">
-          <img src="${cr.bandeira}" alt="${cr.selecao}" onerror="this.style.display='none'" />
+          <img src="${escHtml(cr.bandeira)}" alt="${escHtml(cr.selecao)}" onerror="this.style.display='none'" />
         </div>
         <div class="card-info">
-          <h3 class="craque-nome">${cr.nome}</h3>
-          <p class="craque-selecao">${cr.selecao}</p>
+          <h3 class="craque-nome">${escHtml(cr.nome)}</h3>
+          <p class="craque-selecao">${escHtml(cr.selecao)}</p>
         </div>
         <div class="card-badge">#${cr.id}</div>
       </div>
@@ -189,10 +199,10 @@ function renderHistorico(filtroNome = "todos") {
 
   tbody.innerHTML = lista.map((h, i) => `
     <tr class="${i % 2 === 0 ? "par" : "impar"}">
-      <td><img src="${h.bandeira}" style="width:20px;height:20px;object-fit:contain;vertical-align:middle;margin-right:6px" />${h.craque}</td>
-      <td>${h.selecao}</td>
-      <td><strong>${h.jogador}</strong></td>
-      <td><span class="badge-pos ${posClass(h.posicao)}">${h.posicao || "—"}</span></td>
+      <td><img src="${escHtml(h.bandeira)}" style="width:20px;height:20px;object-fit:contain;vertical-align:middle;margin-right:6px" />${escHtml(h.craque)}</td>
+      <td>${escHtml(h.selecao)}</td>
+      <td><strong>${escHtml(h.jogador)}</strong></td>
+      <td><span class="badge-pos ${posClass(h.posicao)}">${escHtml(h.posicao) || "—"}</span></td>
       <td class="valor-cell">${fmt(h.valor)}</td>
       <td class="hora-cell">${horaStr(h.timestamp)}</td>
     </tr>`).join("");
