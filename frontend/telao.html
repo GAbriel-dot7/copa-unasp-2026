@@ -1298,70 +1298,39 @@ function renderGrid() {
   });
 
   function buildCard(cr) {
-    const cls   = classeSaldo(cr.saldo);
-    const jogs  = (jogMap[cr.id] || []).slice().reverse();
-    const jogHTML = jogs.length === 0
-      ? `<div class="jog-vazio">Nenhum jogador ainda</div>`
-      : jogs.map((j, i) => `
-          <div class="jog-item${i===0 && ultimaId !== null ? " novo" : ""}">
-            <span class="jog-nome">
-              <span class="bp ${bpClass(j.posicao)}">${j.posicao||""}</span>
-              ${j.jogador}
-            </span>
-            <span class="jog-val">${fmt(j.valor)}</span>
-          </div>`).join("");
+<<<<<<< HEAD
+=======
+        const cls   = classeSaldo(cr.saldo);
+        const jogs  = (jogMap[cr.id] || []).slice().reverse();
+        const jogHTML = jogs.length === 0
+          ? `<div class="jog-vazio">Nenhum jogador ainda</div>`
+          : jogs.map((j, i) => `
+              <div class="jog-item${i===0 && ultimaId !== null ? " novo" : ""}">
+                <span class="jog-nome">
+                  <span class="bp ${bpClass(j.posicao)}">${j.posicao||""}</span>
+                  ${j.jogador}
+                </span>
+                <span class="jog-val">${fmt(j.valor)}</span>
+              </div>`).join("");
 
-    return `
-      <div class="card ${cls}" style="--cor-sel:${cr.cor};--cor-sec:${cr.cor_sec}">
-        <div class="card-top">
-          <div class="card-brasao">
-            <img src="${cr.bandeira}" alt="${cr.selecao}" loading="lazy" decoding="async" onerror="this.style.display='none'" />
-          </div>
-          <div class="card-meta">
-            <div class="card-nome">${cr.nome}</div>
-            <div class="card-selecao">${cr.selecao}</div>
-          </div>
-        </div>
-        <div class="card-elenco">
-          <div class="elenco-header">
-            <span>Elenco (${jogs.length})</span>
-          </div>
-          <div>${jogHTML}</div>
-        </div>
-      </div>`;
-  }
-
-  // Dividir: primeiros 4 no grid principal, restante no grid inferior centralizado
-  const topCraques = estado.craques.slice(0, 4);
-  const bottomCraques = estado.craques.slice(4);
-
-  grid.innerHTML = topCraques.map(buildCard).join("");
-  if (gridBottom) {
-    gridBottom.innerHTML = bottomCraques.map(buildCard).join("");
-  }
-
-  iniciarAutoScrollElencos();
-}
-
-function iniciarAutoScrollElencos() {
-  clearInterval(elencoScrollTimer);
-
-  const listas = Array.from(document.querySelectorAll(".card-elenco"));
-  if (!listas.length) return;
-
-  elencoScrollTimer = setInterval(() => {
-    for (const lista of listas) {
-      if (lista.scrollHeight <= lista.clientHeight + 8) continue;
-      const noFim = (lista.scrollTop + lista.clientHeight) >= (lista.scrollHeight - 6);
-      if (noFim) {
-        lista.scrollTo({ top: 0, behavior: "smooth" });
-      } else {
-        lista.scrollBy({ top: 28, behavior: "smooth" });
-      }
-    }
-  }, modoPerformance ? 3000 : 2200);
-}
-
+        return `
+          <div class="card ${cls}" style="--cor-sel:${cr.cor};--cor-sec:${cr.cor_sec}">
+            <div class="card-top">
+              <div class="card-brasao">
+                <img src="${cr.bandeira}" alt="${cr.selecao}" loading="lazy" decoding="async" onerror="this.style.display='none'" />
+              </div>
+              <div class="card-meta">
+                <div class="card-nome">${cr.nome}</div>
+                <div class="card-selecao">${cr.selecao}</div>
+              </div>
+            </div>
+            <div class="card-elenco">
+              <div class="elenco-header">
+                <span>Elenco (${jogs.length})</span>
+              </div>
+              <div>${jogHTML}</div>
+            </div>
+          </div>`;
 // ── Ranking ───────────────────────────────────
 function renderRanking() {
   const el = document.getElementById("rank-items"); if (!el) return;
