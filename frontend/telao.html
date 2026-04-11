@@ -155,7 +155,7 @@
     .stat:last-child { border-right: none; }
     .stat-val {
       display: block; font-family: 'Bebas Neue', sans-serif;
-      font-size: 22px; color: var(--amarelo); line-height: 1;
+      font-size: 20px; color: var(--amarelo); line-height: 1;
       text-shadow: 0 0 14px rgba(255,209,0,0.28);
     }
     .stat-lbl {
@@ -166,50 +166,65 @@
     /* ── Grid de craques — área principal ────────── */
     .grid-area {
       flex: 1; min-height: 0;
-      padding: 10px 12px 0 12px;
-      position: relative;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 32px 24px;
-      width: 100vw;
-      max-width: 1920px;
-      margin: 0 auto;
-      justify-items: center;
-      align-items: start;
-      perspective: 1000px;
-    }
-
-    /* Centralizar grid-area */
-    .grid-area {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      height: 100%;
-      padding: 0;
+      justify-content: stretch;
+      padding: 6px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px 12px;
+      width: 100%;
+      max-width: 1600px;
+      margin: 0 auto;
+      justify-items: center;
+      align-items: stretch;
+      flex: 4;
+      min-height: 0;
+    }
+    /* Linha de baixo centralizada: 3 itens */
+    .grid-row-bottom {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px 12px;
+      width: 80%;
+      max-width: 1200px;
+      margin: 8px auto 0;
+      justify-items: center;
+      align-items: stretch;
+      flex: 3;
+      min-height: 0;
+    }
+    #grid-wrapper {
+      width: 100%;
+      max-width: 1600px;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
     }
 
     /* ── Cartão ──────────────────────────────────── */
     .card {
       background: linear-gradient(165deg, rgba(255,255,255,0.05), rgba(13,18,48,0.96));
       border: 1.5px solid rgba(255,255,255,0.16);
-      border-radius: 16px;
+      border-radius: 14px;
       overflow: hidden;
       display: flex; flex-direction: column;
       position: relative;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.28);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.28);
       transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
       isolation: isolate;
       min-width: 0;
       min-height: 0;
-      font-size: clamp(1em, 2vw, 1.25em);
+      font-size: clamp(0.85em, 1.4vw, 1.1em);
       width: 100%;
-      max-width: 320px;
+      max-width: 360px;
       margin: 0 auto;
-      height: 410px;
-      min-height: 410px;
     }
     .card::after {
       content: '';
@@ -243,14 +258,14 @@
     /* Topo do cartão: brasão + nome + saldo */
     .card-top {
       flex-shrink: 0;
-      padding: 12px 14px 8px 14px;
-      display: flex; align-items: center; gap: 12px;
+      padding: 8px 12px 6px 12px;
+      display: flex; align-items: center; gap: 10px;
       border-bottom: 1.5px solid var(--borda);
       background: rgba(255,255,255,0.06);
       backdrop-filter: blur(6px);
     }
     .card-brasao {
-      width: 44px; height: 44px; flex-shrink: 0;
+      width: 36px; height: 36px; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
     }
     .card-brasao img {
@@ -262,86 +277,124 @@
       font-weight: 900;
       letter-spacing: 1.1px;
       color: white;
-      white-space: normal;
-      overflow-wrap: break-word;
-      text-align: center;
-      margin-bottom: 2px;
-      font-size: clamp(1.1em, 2.2vw, 1.7em);
-      line-height: 1.1em;
-      max-height: 2.3em;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: clamp(1em, 1.6vw, 1.35em);
+      line-height: 1.2;
     }
     .card-selecao {
-      font-size: clamp(0.9em, 1.5vw, 1.1em);
+      font-size: clamp(0.7em, 1vw, 0.85em);
       color: var(--muted);
       letter-spacing: 1.2px;
       text-transform: uppercase;
-      text-align: center;
     }
     .card-saldo-wrap { flex-shrink: 0; text-align: right; }
     .card-saldo {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 20px; letter-spacing: 1px; line-height: 1;
+      font-size: 22px; letter-spacing: 1px; line-height: 1;
       transition: color 0.5s;
       text-shadow: 0 0 10px rgba(255,255,255,0.14);
     }
     .card-barra {
-      height: 3px; background: rgba(255,255,255,0.08);
+      height: 4px; background: rgba(255,255,255,0.08);
       border-radius: 99px; overflow: hidden; margin-top: 3px; width: 80px;
     }
     .card-barra-fill { height: 100%; border-radius: 99px; transition: width 0.8s ease; }
+
+    /* Seção de saldo dentro do card */
+    .card-saldo-section {
+      padding: 6px 12px;
+      border-bottom: 1px solid var(--borda);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .card-saldo-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .card-saldo-label {
+      font-size: 8px;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .card-saldo-valor {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(20px, 2vw, 28px);
+      line-height: 1;
+      letter-spacing: 1px;
+      transition: color 0.5s;
+      text-shadow: 0 0 12px rgba(255,255,255,0.1);
+    }
+    .card-saldo-pct {
+      font-size: 9px;
+      color: var(--muted);
+    }
+    .card-barra-wrap {
+      flex: 1;
+      max-width: 100px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 3px;
+    }
+    .card-barra-full {
+      width: 100%;
+      height: 6px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .card-barra-full .bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.8s ease;
+    }
 
     /* Lista de jogadores — área scrollável invisível */
     .card-elenco {
       flex: 1;
       min-height: 0;
       overflow-y: auto;
-      padding: 18px 18px 18px 18px;
+      padding: 4px 8px;
       scrollbar-width: thin;
-      scrollbar-color: #FFD100 #222;
-      font-size: 1.1em;
-      max-height: 160px;
+      scrollbar-color: rgba(255,209,0,0.4) rgba(255,255,255,0.05);
+      font-size: 0.88em;
       scroll-behavior: smooth;
     }
     .card-elenco::-webkit-scrollbar {
-      width: 8px;
-      background: #222;
+      width: 5px;
+      background: rgba(255,255,255,0.05);
     }
     .card-elenco::-webkit-scrollbar-thumb {
-      background: #FFD100;
+      background: rgba(255,209,0,0.4);
       border-radius: 8px;
     }
+
     @media (max-width: 1400px) {
       .grid {
         grid-template-columns: repeat(4, 1fr);
-        gap: 24px 18px;
+        gap: 6px 10px;
       }
-      .card {
-        max-width: 98vw;
-        height: 350px;
-        min-height: 350px;
-      }
-      .card-elenco {
-        max-height: 100px;
+      .grid-row-bottom {
+        gap: 6px 10px;
       }
     }
 
     @media (max-width: 900px) {
       .grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
+        gap: 10px;
       }
-      .card {
-        font-size: 0.92em;
-        height: 260px;
-        min-height: 260px;
+      .grid-row-bottom {
+        grid-template-columns: repeat(2, 1fr);
+        width: 100%;
       }
-      .card-elenco {
-        max-height: 60px;
-      }
+      .card { font-size: 0.85em; }
     }
 
     @media (max-width: 600px) {
@@ -349,24 +402,20 @@
         grid-template-columns: 1fr;
         gap: 8px;
       }
-      .card {
-        font-size: 0.85em;
-        max-width: 99vw;
-        height: 200px;
-        min-height: 200px;
+      .grid-row-bottom {
+        grid-template-columns: 1fr;
+        width: 100%;
       }
-      .card-elenco {
-        max-height: 36px;
-      }
+      .card { font-size: 0.8em; }
     }
 
     .elenco-header {
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1.1em; font-weight: 700; letter-spacing: 2px;
+      font-size: 0.85em; font-weight: 700; letter-spacing: 1.5px;
       text-transform: uppercase; color: var(--muted);
       display: flex; justify-content: space-between;
-      margin-bottom: 10px; padding-bottom: 6px;
-      border-bottom: 1.5px solid rgba(255,255,255,0.09);
+      margin-bottom: 6px; padding-bottom: 4px;
+      border-bottom: 1px solid rgba(255,255,255,0.09);
     }
     .elenco-gasto { color: var(--vermelho); }
 
@@ -374,14 +423,14 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 12px;
-      border-radius: 8px;
-      margin-bottom: 8px;
-      background: rgba(255,255,255,0.07);
-      border: 1.5px solid rgba(255,255,255,0.09);
-      font-size: clamp(1em, 1.5vw, 1.15em);
+      padding: 5px 8px;
+      border-radius: 6px;
+      margin-bottom: 4px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.07);
+      font-size: clamp(0.8em, 1.1vw, 0.95em);
       transition: background 0.2s;
-      min-height: 44px;
+      min-height: 28px;
     }
     .jog-item.novo {
       background: rgba(255,209,0,0.08);
@@ -1005,7 +1054,6 @@
     <div class="h-info">
       <h1>Leilão ao Vivo — 2026</h1>
       <p>Placar em tempo real · Atualização automática</p>
-      <p style="margin-top:12px"><span class="assinatura-chic sutil">&middot; Desenvolvido por Robson &amp; Neo Lucca</span></p>
     </div>
     <div style="display:flex;align-items:center;gap:10px;position:relative">
       <div class="conn-dot" id="conn-dot"></div>
@@ -1023,7 +1071,10 @@
 
   <!-- Grid -->
   <div class="grid-area">
-    <div class="grid" id="grid"></div>
+    <div id="grid-wrapper">
+      <div class="grid" id="grid"></div>
+      <div class="grid-row-bottom" id="grid-bottom"></div>
+    </div>
 
     <!-- Overlay aguardando -->
     <div class="aguardando" id="aguardando">
@@ -1048,10 +1099,6 @@
       <div class="feed-items" id="feed-items">
         <span class="feed-vazio">Aguardando compras...</span>
       </div>
-    </div>
-
-    <div class="footer-credit">
-      <span class="assinatura-chic sutil">&middot; Desenvolvido por Robson &amp; Neo Lucca</span>
     </div>
 
   </div>
@@ -1237,6 +1284,7 @@ function renderStats() {
 // ── Grid ──────────────────────────────────────
 function renderGrid() {
   const grid = document.getElementById("grid"); if (!grid) return;
+  const gridBottom = document.getElementById("grid-bottom");
 
   // Overlay
   const ag = document.getElementById("aguardando");
@@ -1249,13 +1297,9 @@ function renderGrid() {
     jogMap[c.craque_id].push(c);
   });
 
-  grid.innerHTML = estado.craques.map(cr => {
-    const p     = pct(cr.saldo);
-    const cor   = corSaldo(cr.saldo);
+  function buildCard(cr) {
     const cls   = classeSaldo(cr.saldo);
     const jogs  = (jogMap[cr.id] || []).slice().reverse();
-    const gasto = SALDO_INICIAL - cr.saldo;
-
     const jogHTML = jogs.length === 0
       ? `<div class="jog-vazio">Nenhum jogador ainda</div>`
       : jogs.map((j, i) => `
@@ -1285,7 +1329,16 @@ function renderGrid() {
           <div>${jogHTML}</div>
         </div>
       </div>`;
-  }).join("");
+  }
+
+  // Dividir: primeiros 4 no grid principal, restante no grid inferior centralizado
+  const topCraques = estado.craques.slice(0, 4);
+  const bottomCraques = estado.craques.slice(4);
+
+  grid.innerHTML = topCraques.map(buildCard).join("");
+  if (gridBottom) {
+    gridBottom.innerHTML = bottomCraques.map(buildCard).join("");
+  }
 
   iniciarAutoScrollElencos();
 }
@@ -1316,12 +1369,10 @@ function renderRanking() {
   const med = ["🥇","🥈","🥉"];
   el.innerHTML = `<div style="display:flex;gap:5px">` +
     ord.map((cr,i) => {
-      const cor = corSaldo(cr.saldo);
       return `<div class="rank-item">
         <span class="rank-med">${med[i]||(i+1)+"º"}</span>
         <img class="rank-brasao" src="${cr.bandeira}" alt="${cr.selecao}" loading="lazy" decoding="async" onerror="this.style.display='none'" />
         <span class="rank-nome">${cr.nome}</span>
-        <span class="rank-saldo" style="color:${cor}">${fmt(cr.saldo)}</span>
       </div>`;
     }).join("") + `</div>`;
 }
