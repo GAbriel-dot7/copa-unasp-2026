@@ -10,14 +10,12 @@
 import sqlite3
 import json
 import os
-import re
 import secrets
 import threading
 import time
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 from datetime import datetime
-import html as html_module
 
 # ── Configuração ─────────────────────────────────────────────
 PORT        = int(os.environ.get("PORT", 3000))
@@ -168,13 +166,13 @@ def require_admin(handler):
     return True
 
 def sanitize_str(value, max_len=MAX_FIELD_LEN):
-    """Sanitize a string input: strip, truncate, escape HTML."""
+    """Sanitize a string input: strip and truncate."""
     if not isinstance(value, str):
         return ""
     value = value.strip()
     if len(value) > max_len:
         value = value[:max_len]
-    return html_module.escape(value)
+    return value
 
 def serve_file(handler, filepath):
     ext_map = {
