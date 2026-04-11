@@ -10,49 +10,6 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-          /* Media queries para responsividade */
-          @media (max-width: 1400px) {
-            .grid {
-              grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-              gap: 24px 18px;
-            }
-            .card {
-              max-width: 98vw;
-              height: 370px;
-            }
-            .card-elenco {
-              max-height: 120px;
-            }
-          }
-
-          @media (max-width: 900px) {
-            .grid {
-              grid-template-columns: repeat(2, 1fr);
-              gap: 12px;
-            }
-            .card {
-              font-size: 0.92em;
-              height: 320px;
-            }
-            .card-elenco {
-              max-height: 80px;
-            }
-          }
-
-          @media (max-width: 600px) {
-            .grid {
-              grid-template-columns: 1fr;
-              gap: 8px;
-            }
-            .card {
-              font-size: 0.85em;
-              max-width: 99vw;
-              height: 260px;
-            }
-            .card-elenco {
-              max-height: 50px;
-            }
-          }
       --vermelho: #E8003D;
       --azul:     #0033A0;
       --amarelo:  #FFD100;
@@ -214,12 +171,12 @@
     }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 36px 36px;
-      width: 97vw;
-      max-width: 1800px;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 32px 24px;
+      width: 100vw;
+      max-width: 1920px;
       margin: 0 auto;
-      justify-content: center;
+      justify-items: center;
       align-items: start;
       perspective: 1000px;
     }
@@ -248,10 +205,11 @@
       min-width: 0;
       min-height: 0;
       font-size: clamp(1em, 2vw, 1.25em);
-      max-width: 370px;
+      width: 100%;
+      max-width: 320px;
       margin: 0 auto;
-      height: 420px;
-      /* altura máxima fixa para nunca sobrepor */
+      height: 410px;
+      min-height: 410px;
     }
     .card::after {
       content: '';
@@ -345,7 +303,7 @@
       scrollbar-width: thin;
       scrollbar-color: #FFD100 #222;
       font-size: 1.1em;
-      max-height: 180px;
+      max-height: 160px;
       scroll-behavior: smooth;
     }
     .card-elenco::-webkit-scrollbar {
@@ -358,15 +316,16 @@
     }
     @media (max-width: 1400px) {
       .grid {
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        grid-template-columns: repeat(4, 1fr);
         gap: 24px 18px;
       }
       .card {
         max-width: 98vw;
-        height: 370px;
+        height: 350px;
+        min-height: 350px;
       }
       .card-elenco {
-        max-height: 120px;
+        max-height: 100px;
       }
     }
 
@@ -377,10 +336,11 @@
       }
       .card {
         font-size: 0.92em;
-        height: 320px;
+        height: 260px;
+        min-height: 260px;
       }
       .card-elenco {
-        max-height: 80px;
+        max-height: 60px;
       }
     }
 
@@ -392,10 +352,11 @@
       .card {
         font-size: 0.85em;
         max-width: 99vw;
-        height: 260px;
+        height: 200px;
+        min-height: 200px;
       }
       .card-elenco {
-        max-height: 50px;
+        max-height: 36px;
       }
     }
 
