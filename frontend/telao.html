@@ -987,6 +987,25 @@
       100% { opacity:0; transform: translateY(115vh) rotate(var(--rot-end, 720deg)) scale(0.5); }
     }
 
+    /* QR Code na tela de encerramento */
+    .enc-qrcode {
+      position: relative; z-index: 1;
+      margin-top: 20px;
+      opacity: 0;
+    }
+    .enc-screen.ativo .enc-qrcode {
+      animation: fadeIn 0.8s ease 2.6s both;
+    }
+    .enc-qrcode img {
+      width: 200px; height: 200px;
+      border-radius: 14px;
+      border: 3px solid rgba(255,209,0,0.4);
+      box-shadow: 0 0 32px rgba(255,209,0,0.2), 0 8px 24px rgba(0,0,0,0.4);
+      object-fit: contain;
+      background: white;
+      padding: 6px;
+    }
+
     .enc-logos {
       display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;
       justify-content: center; max-width: 600px;
@@ -1170,6 +1189,9 @@
   <div class="enc-linha"></div>
   <div class="enc-sub">Copa UNASP 2026 · Obrigado a todos!</div>
   <div class="enc-credit">&middot; Desenvolvido por Robson &amp; Neo Lucca</div>
+  <div class="enc-qrcode">
+    <img src="img/qrcode.jpg" alt="QR Code" />
+  </div>
   <div class="enc-logos" id="enc-logos"></div>
 </div>
 
