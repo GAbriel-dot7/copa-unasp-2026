@@ -68,7 +68,7 @@ def init_db():
             id        INTEGER PRIMARY KEY AUTOINCREMENT,
             craque_id INTEGER NOT NULL REFERENCES craques(id),
             jogador   TEXT NOT NULL,
-            posicao   TEXT NOT NULL,
+            posicao   TEXT DEFAULT '',
             valor     INTEGER NOT NULL,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
@@ -181,9 +181,9 @@ def handle_post_compra(handler):
     posicao     = (data.get("posicao") or "").strip()
     valor       = data.get("valor")
 
-    # Validação de campos
-    if not craque_id or not jogador or not posicao or not valor:
-        json_response(handler, 400, {"erro": "Campos obrigatórios: craque_id, jogador, posicao, valor"})
+    # Validação de campos (posicao é opcional)
+    if not craque_id or not jogador or not valor:
+        json_response(handler, 400, {"erro": "Campos obrigatórios: craque_id, jogador, valor"})
         return
     try:
         valor = int(valor)

@@ -191,6 +191,43 @@
   white-space: nowrap;
 }
 .btn-desfazer:hover { background: rgba(232,0,61,0.22); border-color: rgba(232,0,61,0.5); color: white; }
+/* ── Botão desfazer última compra (destaque) ────────── */
+.undo-ultima {
+  display: none;
+  margin: 18px auto 0;
+  padding: 13px 32px;
+  background: linear-gradient(135deg, rgba(232,0,61,0.15), rgba(232,0,61,0.08));
+  border: 1px solid rgba(232,0,61,0.35);
+  border-radius: 12px;
+  color: #ff6b8a;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  transition: all 0.25s;
+  text-align: center;
+  max-width: 480px;
+  width: 100%;
+  animation: fadeInUndo 0.35s ease;
+}
+.undo-ultima:hover {
+  background: linear-gradient(135deg, rgba(232,0,61,0.28), rgba(232,0,61,0.14));
+  border-color: rgba(232,0,61,0.6);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(232,0,61,0.2);
+}
+.undo-ultima .undo-info {
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(255,107,138,0.7);
+  margin-top: 2px;
+}
+@keyframes fadeInUndo {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
 .assinatura-chic {
   display: inline-block;
@@ -300,7 +337,7 @@
       </div>
 
       <div class="form-group">
-        <label>Posição</label>
+        <label>Posição <span style="font-weight:400;color:#8896C4;font-size:12px">(opcional)</span></label>
         <div class="posicao-btns">
           <button type="button" class="btn-pos" data-p="Goleiro" onclick="selPos('Goleiro')">🧤 Goleiro</button>
           <button type="button" class="btn-pos" data-p="Fixo"    onclick="selPos('Fixo')">🧱 Fixo</button>
@@ -327,6 +364,10 @@
     <div class="form-footer">
       <button id="btn-registrar" class="btn-registrar" onclick="registrarCompra()">
         ⚽ REGISTRAR COMPRA
+      </button>
+      <button id="btn-undo-ultima" class="undo-ultima" onclick="desfazerUltimaCompra()">
+        ↩ DESFAZER ÚLTIMA COMPRA
+        <div class="undo-info" id="undo-ultima-info"></div>
       </button>
     </div>
   </section>
@@ -566,10 +607,14 @@ function atualizarInfoCraque() {
   info.style.display = "block";
 }
 
-// ── Seleção de posição ────────────────────────────────────────
+// ── Seleção de posição (toggle — clique novamente para limpar) ──
 function selPos(p) {
-  document.getElementById("inp-posicao").value = p;
-  document.querySelectorAll(".btn-pos").forEach(b => b.classList.toggle("ativo", b.dataset.p === p));
+  const inp = document.getElementById("inp-posicao");
+  const isActive = inp.value === p;
+  inp.value = isActive ? "" : p;
+  document.querySelectorAll(".btn-pos").forEach(b =>
+    b.classList.toggle("ativo", !isActive && b.dataset.p === p)
+  );
 }
 
 // ── Incremento de valor ───────────────────────────────────────
@@ -599,7 +644,7 @@ async function registrarCompra() {
   // Validação frontend (apenas campos)
   if (!craqueId) { mostrarErro("Selecione um craque."); return; }
   if (!jogador)  { mostrarErro("Informe o nome do jogador."); return; }
-  if (!posicao)  { mostrarErro("Selecione a posição do jogador."); return; }
+  // posicao é opcional — jogador pode não ter posição ainda
   if (!valor || valor <= 0) { mostrarErro("Informe um valor válido."); return; }
 
   btnEl.disabled   = true;
@@ -625,7 +670,8 @@ async function registrarCompra() {
     document.getElementById("inp-posicao").value = "";
     document.querySelectorAll(".btn-pos").forEach(b => b.classList.remove("ativo"));
 
-    toast(`✅ ${jogador} (${posicao}) registrado com sucesso!`, "ok");
+    toast(`✅ ${jogador}${posicao ? ` (${posicao})` : ''} registrado com sucesso!`, "ok");
+    mostrarBotaoDesfazer(jogador, posicao);
     await carregarDados();
 
   } catch (err) {
@@ -838,6 +884,24 @@ async function reabrirLeilao() {
   } else {
     toast(`❌ ${d.erro || "Não foi possível reabrir."}`, "erro");
   }
+}
+
+// ── Desfazer última compra (botão de destaque) ──────────────────
+function mostrarBotaoDesfazer(jogador, posicao) {
+  const btn = document.getElementById("btn-undo-ultima");
+  const info = document.getElementById("undo-ultima-info");
+  info.textContent = `${jogador}${posicao ? ` (${posicao})` : ''}`;
+  btn.style.display = "block";
+}
+
+async function desfazerUltimaCompra() {
+  if (!estado.historicoGlobal.length) {
+    toast("⚠️ Nenhuma compra para desfazer.", "erro");
+    return;
+  }
+  const ultima = estado.historicoGlobal[0];
+  await desfazerCompra(ultima.id, ultima.jogador);
+  document.getElementById("btn-undo-ultima").style.display = "none";
 }
 
 // ── Desfazer compra ───────────────────────────────────────────
